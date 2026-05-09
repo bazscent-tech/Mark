@@ -1,79 +1,140 @@
-/* ===== سوق الجمله اليمني - Design System ===== */
+/* ===== MARK Store — Premium Design System ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+
 :root {
-  /* Primary Colors */
-  --primary: #FF6600;
-  --primary-dark: #E55A00;
-  --primary-light: #FF8533;
-  --primary-bg: #FFF5EB;
+  /* === Brand Colors === */
+  --clr-brand: #D4A853;
+  --clr-brand-light: #E8C97A;
+  --clr-brand-dark: #B8912E;
+  --clr-brand-glow: rgba(212, 168, 83, 0.15);
 
-  /* Secondary */
-  --secondary: #1A1A2E;
-  --secondary-light: #16213E;
+  /* === Surface Colors (Light Theme) === */
+  --clr-bg: #F7F6F3;
+  --clr-bg-elevated: #FFFFFF;
+  --clr-bg-sunken: #EFECE6;
+  --clr-bg-overlay: rgba(255, 255, 255, 0.72);
+  --clr-surface: #FFFFFF;
+  --clr-surface-hover: #FAFAF8;
+  --clr-surface-active: #F2F0EB;
 
-  /* Accent */
-  --accent: #FF4444;
-  --accent-green: #00B894;
-  --accent-blue: #0984E3;
-  --accent-gold: #FDCB6E;
+  /* === Text === */
+  --clr-text: #1A1A1A;
+  --clr-text-secondary: #6B6B6B;
+  --clr-text-tertiary: #9E9E9E;
+  --clr-text-inverse: #FFFFFF;
+  --clr-text-brand: #D4A853;
 
-  /* Neutrals */
-  --white: #FFFFFF;
-  --gray-50: #F8F9FA;
-  --gray-100: #F1F3F5;
-  --gray-200: #E9ECEF;
-  --gray-300: #DEE2E6;
-  --gray-400: #CED4DA;
-  --gray-500: #ADB5BD;
-  --gray-600: #868E96;
-  --gray-700: #495057;
-  --gray-800: #343A40;
-  --gray-900: #212529;
+  /* === Borders === */
+  --clr-border: #E8E5DE;
+  --clr-border-light: #F0EDE6;
+  --clr-border-strong: #D0CCC3;
 
-  /* Status */
-  --success: #00B894;
-  --warning: #FDCB6E;
-  --danger: #FF4444;
-  --info: #0984E3;
+  /* === Accent / Status === */
+  --clr-accent: #E85D3A;
+  --clr-accent-soft: rgba(232, 93, 58, 0.1);
+  --clr-success: #2A9D6E;
+  --clr-success-soft: rgba(42, 157, 110, 0.1);
+  --clr-warning: #E8A833;
+  --clr-warning-soft: rgba(232, 168, 51, 0.1);
+  --clr-danger: #D63031;
+  --clr-danger-soft: rgba(214, 48, 49, 0.1);
+  --clr-info: #3A7BD5;
+  --clr-info-soft: rgba(58, 123, 213, 0.1);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
-  --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
+  /* === Dark Accents === */
+  --clr-dark: #1A1814;
+  --clr-dark-soft: #2C2A25;
+  --clr-dark-muted: #3D3A34;
 
-  /* Border Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-full: 9999px;
+  /* === Gradients === */
+  --grad-brand: linear-gradient(135deg, #D4A853 0%, #E8C97A 50%, #D4A853 100%);
+  --grad-dark: linear-gradient(135deg, #1A1814 0%, #2C2A25 100%);
+  --grad-warm: linear-gradient(135deg, #D4A853 0%, #E85D3A 100%);
+  --grad-hero: linear-gradient(160deg, #1A1814 0%, #2C2A25 40%, #3D3A34 100%);
+  --grad-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  --grad-card: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(212,168,83,0.03) 100%);
 
-  /* Typography */
-  --font-main: 'Tajawal', 'Segoe UI', sans-serif;
-  --font-heading: 'Tajawal', 'Segoe UI', sans-serif;
+  /* === Shadows === */
+  --shadow-xs: 0 1px 2px rgba(26, 24, 20, 0.04);
+  --shadow-sm: 0 2px 8px rgba(26, 24, 20, 0.06);
+  --shadow-md: 0 4px 16px rgba(26, 24, 20, 0.08);
+  --shadow-lg: 0 8px 32px rgba(26, 24, 20, 0.10);
+  --shadow-xl: 0 16px 48px rgba(26, 24, 20, 0.14);
+  --shadow-2xl: 0 24px 64px rgba(26, 24, 20, 0.18);
+  --shadow-brand: 0 4px 24px rgba(212, 168, 83, 0.25);
+  --shadow-inner: inset 0 2px 4px rgba(26, 24, 20, 0.06);
+  --shadow-glow: 0 0 40px rgba(212, 168, 83, 0.15);
 
-  /* Spacing */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
-  --space-3xl: 64px;
+  /* === Typography === */
+  --font-body: 'Tajawal', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Tajawal', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Playfair Display', 'Tajawal', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  /* Container */
-  --container-max: 1400px;
-  --container-padding: 16px;
+  /* === Font Sizes (fluid) === */
+  --text-xs: clamp(0.625rem, 0.55vw + 0.5rem, 0.75rem);
+  --text-sm: clamp(0.75rem, 0.65vw + 0.6rem, 0.875rem);
+  --text-base: clamp(0.875rem, 0.8vw + 0.7rem, 1rem);
+  --text-lg: clamp(1rem, 1vw + 0.8rem, 1.125rem);
+  --text-xl: clamp(1.125rem, 1.2vw + 0.9rem, 1.25rem);
+  --text-2xl: clamp(1.25rem, 1.5vw + 1rem, 1.5rem);
+  --text-3xl: clamp(1.5rem, 2vw + 1.1rem, 2rem);
+  --text-4xl: clamp(2rem, 3vw + 1.4rem, 2.5rem);
+  --text-5xl: clamp(2.5rem, 4vw + 1.6rem, 3.5rem);
+  --text-6xl: clamp(3rem, 5vw + 2rem, 4.5rem);
 
-  /* Transitions */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.3s ease;
-  --transition-slow: 0.5s ease;
+  /* === Spacing === */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+  --sp-24: 96px;
 
-  /* Z-index */
+  /* === Radius === */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-2xl: 28px;
+  --r-full: 9999px;
+
+  /* === Transitions === */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t-fast: 150ms var(--ease-out);
+  --t-normal: 300ms var(--ease-out);
+  --t-slow: 500ms var(--ease-out);
+  --t-slower: 700ms var(--ease-out);
+
+  /* === Z-Index === */
+  --z-base: 1;
   --z-dropdown: 100;
   --z-sticky: 200;
   --z-overlay: 300;
   --z-modal: 400;
   --z-toast: 500;
+  --z-tooltip: 600;
+
+  /* === Layout === */
+  --container-max: 1440px;
+  --container-padding: clamp(16px, 3vw, 40px);
+  --header-height: 72px;
+  --nav-height: 48px;
+  --sidebar-width: 280px;
+}
+
+/* === Dark Mode Support (future) === */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Can be enabled later */
+  }
 }

@@ -1,4 +1,4 @@
-// ===== سوق الجمله اليمني - Main App =====
+// ===== MARK Store — Premium App =====
 
 // --- Helpers ---
 function formatPrice(price) {
@@ -19,12 +19,29 @@ function showToast(msg, type = 'success') {
   toast.className = `toast ${type}`;
   toast.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : '⚠'}</span> ${msg}`;
   container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+  setTimeout(() => toast.remove(), 3500);
 }
 
 function updateCartBadge() {
   const badge = document.querySelector('#cart-badge');
   if (badge) badge.textContent = STORE.cart.length;
+}
+
+// --- Build Categories Mega Menu ---
+function buildCategoriesMegaMenu() {
+  const menu = document.getElementById('cat-menu');
+  if (!menu) return;
+  menu.innerHTML = STORE.categories.slice(0, 38).map(cat => `
+    <div class="mega-cat-item" onclick="Router.navigate('category/${cat.id}')">
+      <span class="cat-icon">${cat.icon}</span>
+      <span>${cat.name}</span>
+      <span class="arrow">←</span>
+    </div>
+  `).join('') + `
+    <div class="mega-cat-item" onclick="Router.navigate('categories')" style="color:var(--clr-brand-dark);font-weight:700;justify-content:center">
+      عرض جميع التصنيفات ←
+    </div>
+  `;
 }
 
 // --- Render Product Card ---
@@ -33,17 +50,23 @@ function renderProductCard(product) {
   return `
     <div class="product-card" onclick="Router.navigate('product/${product.id}')">
       <div class="product-image">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;background:var(--gray-100)">${product.image}</div>
+        <div class="img-inner" style="background:var(--clr-bg-sunken)">${product.image}</div>
         ${discount > 0 ? `<div class="discount-tag">-${discount}%</div>` : ''}
-        <button class="wishlist-btn" onclick="event.stopPropagation();this.classList.toggle('active')">♡</button>
+        <button class="wishlist-btn" onclick="event.stopPropagation();this.classList.toggle('active')">
+          ${this.classList?.contains('active') ? '♥' : '♡'}
+        </button>
       </div>
       <div class="product-info">
         <div class="product-title">${product.name}</div>
-        <div class="product-price">${formatPrice(product.price)} <span class="currency">${STORE.currency}</span></div>
-        <div style="font-size:12px;color:var(--gray-500);text-decoration:line-through">${formatPrice(product.originalPrice)} ${STORE.currency}</div>
+        <div class="product-price">
+          ${formatPrice(product.price)}
+          <span class="currency">${STORE.currency}</span>
+        </div>
+        <div class="price-original">${formatPrice(product.originalPrice)} ${STORE.currency}</div>
         <div class="product-meta">
-          <span class="stars" style="font-size:12px">${generateStars(product.rating)}</span>
+          <span class="stars">${generateStars(product.rating)}</span>
           <span>${product.rating}</span>
+          <span>·</span>
           <span class="orders">${product.orders.toLocaleString()} طلب</span>
         </div>
         <div class="moq-badge">الحد الأدنى: ${product.moq} قطع</div>
@@ -62,76 +85,61 @@ function renderHome() {
   const topCategories = STORE.categories.slice(0, 12);
 
   content.innerHTML = `
-    <!-- Promo Banner -->
-    <div style="background:linear-gradient(90deg,#FF6600,#FF4444);color:white;padding:8px 0;text-align:center;font-size:13px;font-weight:600">
-      <div class="container" style="display:flex;align-items:center;justify-content:center;gap:24px">
-        <span>🔥 عروض نهاية الأسبوع — خصومات تصل إلى 60%</span>
-        <span>|</span>
-        <span>🚚 شحن مجاني على الطلبات فوق 50,000 ${STORE.currency}</span>
-        <span>|</span>
-        <span>⏰ ينتهي خلال: <span id="promo-timer" style="font-weight:800">23:59:48</span></span>
-      </div>
-    </div>
-
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="container">
         <div class="hero-grid">
-          <div class="hero-banner" style="background:linear-gradient(135deg,#FF6600 0%,#FF8533 40%,#FFB366 100%)">
+          <div class="hero-banner">
             <div class="hero-content">
-              <div style="display:inline-block;background:rgba(255,255,255,0.2);padding:6px 16px;border-radius:20px;font-size:13px;margin-bottom:12px">🇾🇪 سوق الجمله اليمني</div>
-              <h1 style="font-size:36px;line-height:1.3;margin-bottom:16px">أكبر منصة تجارية<br>بالجملة في اليمن</h1>
-              <p style="font-size:16px;opacity:0.9;margin-bottom:24px;line-height:1.7">آلاف المنتجات بأسعار الجملة مع ضمان الجودة<br>وتوصيل سريع لجميع المحافظات اليمنية</p>
-              <div style="display:flex;gap:12px">
-                <button class="btn btn-lg" style="background:white;color:var(--primary);font-weight:800;padding:14px 32px" onclick="Router.navigate('categories')">
+              <div class="hero-badge">🇾🇪 سوق الجمله اليمني</div>
+              <h1>
+                أكبر منصة تجارية
+                <span class="accent">بالجملة في اليمن</span>
+              </h1>
+              <p>آلاف المنتجات بأسعار الجملة مع ضمان الجودة وتوصيل سريع لجميع المحافظات اليمنية</p>
+              <div class="hero-buttons">
+                <button class="btn btn-brand btn-lg" onclick="Router.navigate('categories')">
                   تصفح المنتجات ←
                 </button>
-                <button class="btn btn-lg" style="background:rgba(255,255,255,0.2);color:white;border:2px solid white;padding:14px 32px" onclick="Router.navigate('register')">
+                <button class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.3);color:var(--clr-text-inverse)" onclick="Router.navigate('register')">
                   سجّل كبائع
                 </button>
               </div>
-              <div style="display:flex;gap:32px;margin-top:24px;font-size:13px;opacity:0.9">
-                <span>✅ +10,000 منتج</span>
-                <span>✅ +500 تاجر</span>
-                <span>✅ +20 محافظة</span>
+              <div class="hero-stats">
+                <div class="hero-stat">
+                  <div class="num">+10,000</div>
+                  <div class="label">منتج متاح</div>
+                </div>
+                <div class="hero-stat">
+                  <div class="num">+500</div>
+                  <div class="label">تاجر موثق</div>
+                </div>
+                <div class="hero-stat">
+                  <div class="num">+50,000</div>
+                  <div class="label">طلب مكتمل</div>
+                </div>
+                <div class="hero-stat">
+                  <div class="num">24</div>
+                  <div class="label">محافظة</div>
+                </div>
               </div>
             </div>
           </div>
           <div class="hero-side">
-            <div class="hero-side-card" style="background:linear-gradient(135deg,#0984E3,#74B9FF)" onclick="Router.navigate('categories')">
-              <div style="font-size:32px;margin-bottom:8px">🔥</div>
-              <h3>عروض اليوم</h3>
-              <p>خصومات تصل إلى 60%</p>
+            <div class="hero-card hero-card-1" onclick="Router.navigate('categories')">
+              <div class="hero-card-content">
+                <div class="card-icon">🔥</div>
+                <h3>عروض اليوم</h3>
+                <p>خصومات تصل إلى 60%</p>
+              </div>
             </div>
-            <div class="hero-side-card" style="background:linear-gradient(135deg,#00B894,#55EFC4)" onclick="Router.navigate('category/2')">
-              <div style="font-size:32px;margin-bottom:8px">📱</div>
-              <h3>إلكترونيات</h3>
-              <p>أحدث الأجهزة بأسعار الجملة</p>
+            <div class="hero-card hero-card-2" onclick="Router.navigate('category/2')">
+              <div class="hero-card-content">
+                <div class="card-icon">📱</div>
+                <h3>إلكترونيات</h3>
+                <p>أحدث الأجهزة بأسعار الجملة</p>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Stats Counter -->
-    <section style="padding:20px 0;background:var(--white)">
-      <div class="container">
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center">
-          <div style="padding:16px">
-            <div style="font-size:32px;font-weight:900;color:var(--primary)">+10,000</div>
-            <div style="font-size:14px;color:var(--gray-500);margin-top:4px">منتج متاح</div>
-          </div>
-          <div style="padding:16px">
-            <div style="font-size:32px;font-weight:900;color:var(--primary)">+500</div>
-            <div style="font-size:14px;color:var(--gray-500);margin-top:4px">تاجر موثق</div>
-          </div>
-          <div style="padding:16px">
-            <div style="font-size:32px;font-weight:900;color:var(--primary)">+50,000</div>
-            <div style="font-size:14px;color:var(--gray-500);margin-top:4px">طلب مكتمل</div>
-          </div>
-          <div style="padding:16px">
-            <div style="font-size:32px;font-weight:900;color:var(--primary)">24</div>
-            <div style="font-size:14px;color:var(--gray-500);margin-top:4px">محافظة</div>
           </div>
         </div>
       </div>
@@ -141,10 +149,13 @@ function renderHome() {
     <section class="section">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title"><span class="title-icon">📂</span> تصفح حسب التصنيف</h2>
+          <h2 class="section-title">
+            <span class="icon">📂</span>
+            <span class="label">تصفح حسب التصنيف</span>
+          </h2>
           <a class="section-more" onclick="Router.navigate('categories')">عرض جميع التصنيفات ←</a>
         </div>
-        <div class="categories-grid">
+        <div class="categories-grid stagger-in">
           ${topCategories.map(cat => `
             <div class="category-card" onclick="Router.navigate('category/${cat.id}')">
               <div class="cat-emoji">${cat.icon}</div>
@@ -159,13 +170,13 @@ function renderHome() {
     <!-- Flash Deals -->
     <section class="section">
       <div class="container">
-        <div class="flash-deals">
+        <div class="flash-section">
           <div class="flash-header">
             <div>
-              <h2 style="color:white;font-size:24px;font-weight:800;margin-bottom:4px">⚡ عروض فلاش</h2>
-              <p style="color:rgba(255,255,255,0.8);font-size:14px">خصومات حصرية لفترة محدودة</p>
+              <h2><span class="flash-icon">⚡</span> عروض فلاش</h2>
+              <div class="flash-sub">خصومات حصرية لفترة محدودة</div>
             </div>
-            <div style="display:flex;align-items:center;gap:16px">
+            <div style="display:flex;align-items:center;gap:var(--sp-5)">
               <div class="flash-timer">
                 <div class="timer-block" id="timer-h">08</div>
                 <span class="timer-sep">:</span>
@@ -173,20 +184,20 @@ function renderHome() {
                 <span class="timer-sep">:</span>
                 <div class="timer-block" id="timer-s">30</div>
               </div>
-              <button class="btn" style="background:white;color:var(--accent);font-weight:700" onclick="Router.navigate('categories')">عرض الكل ←</button>
+              <button class="btn btn-brand btn-sm" onclick="Router.navigate('categories')">عرض الكل ←</button>
             </div>
           </div>
-          <div class="flash-products">
+          <div class="flash-products stagger-in">
             ${flashProducts.map(p => {
               const discount = Math.round((1 - p.price / p.originalPrice) * 100);
               return `
                 <div class="flash-product-card" onclick="Router.navigate('product/${p.id}')">
                   <div class="fp-image">
-                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--gray-100)">${p.image}</div>
+                    <div class="fp-emoji">${p.image}</div>
                     <div class="fp-discount">-${discount}%</div>
                   </div>
                   <div class="fp-info">
-                    <div class="fp-price">${formatPrice(p.price)} <span style="font-size:12px">${STORE.currency}</span></div>
+                    <div class="fp-price">${formatPrice(p.price)} <span style="font-size:var(--text-xs)">${STORE.currency}</span></div>
                     <div class="fp-original">${formatPrice(p.originalPrice)} ${STORE.currency}</div>
                     <div class="fp-sold"><div class="fp-sold-bar" style="width:${p.soldPercent}%"></div></div>
                     <div class="fp-sold-text">${p.soldPercent}% مباع</div>
@@ -203,28 +214,31 @@ function renderHome() {
     <section class="section">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title"><span class="title-icon">🔥</span> الأكثر مبيعاً</h2>
+          <h2 class="section-title">
+            <span class="icon">🔥</span>
+            <span class="label">الأكثر مبيعاً</span>
+          </h2>
           <a class="section-more" onclick="Router.navigate('categories')">عرض الكل ←</a>
         </div>
-        <div class="products-grid">
+        <div class="products-grid stagger-in">
           ${popularProducts.map(renderProductCard).join('')}
         </div>
       </div>
     </section>
 
-    <!-- Banner CTA -->
+    <!-- CTA Banner -->
     <section class="section">
       <div class="container">
-        <div style="background:linear-gradient(135deg,#1A1A2E,#16213E);border-radius:var(--radius-xl);padding:48px;display:flex;align-items:center;justify-content:space-between;color:white">
-          <div>
-            <h2 style="font-size:28px;font-weight:800;margin-bottom:8px">🏪 ابدأ بيع منتجاتك الآن</h2>
-            <p style="font-size:16px;opacity:0.8;margin-bottom:20px">انضم إلى أكثر من 500 تاجر في سوق الجمله اليمني وابدأ البيع لجميع المحافظات</p>
-            <div style="display:flex;gap:12px">
-              <button class="btn btn-lg" style="background:var(--primary);color:white" onclick="Router.navigate('register')">سجّل كبائع</button>
-              <button class="btn btn-lg" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.3)">تعرف على المزيد</button>
+        <div class="cta-banner">
+          <div class="cta-content">
+            <h2>🏪 ابدأ بيع منتجاتك الآن</h2>
+            <p>انضم إلى أكثر من 500 تاجر في سوق الجمله اليمني وابدأ البيع لجميع المحافظات</p>
+            <div style="display:flex;gap:var(--sp-3);flex-wrap:wrap">
+              <button class="btn btn-brand btn-lg" onclick="Router.navigate('register')">سجّل كبائع</button>
+              <button class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.2);color:var(--clr-text-inverse)">تعرف على المزيد</button>
             </div>
           </div>
-          <div style="font-size:100px;opacity:0.3">🏪</div>
+          <div class="cta-emoji">🏪</div>
         </div>
       </div>
     </section>
@@ -233,17 +247,20 @@ function renderHome() {
     <section class="section">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title"><span class="title-icon">🆕</span> وصل حديثاً</h2>
+          <h2 class="section-title">
+            <span class="icon">🆕</span>
+            <span class="label">وصل حديثاً</span>
+          </h2>
           <a class="section-more" onclick="Router.navigate('categories')">عرض الكل ←</a>
         </div>
-        <div class="products-grid">
+        <div class="products-grid stagger-in">
           ${newProducts.map(renderProductCard).join('')}
         </div>
       </div>
     </section>
 
     <!-- Trust Bar -->
-    <section class="section">
+    <section class="section-sm">
       <div class="container">
         <div class="trust-bar">
           <div class="trust-item">
@@ -281,12 +298,12 @@ function renderHome() {
     <!-- Newsletter -->
     <section class="section">
       <div class="container">
-        <div style="background:var(--primary-bg);border-radius:var(--radius-xl);padding:40px;text-align:center">
-          <h2 style="font-size:24px;font-weight:800;margin-bottom:8px">📧 اشترك في النشرة البريدية</h2>
-          <p style="color:var(--gray-600);margin-bottom:20px">احصل على أحدث العروض والمنتجات مباشرة في بريدك</p>
-          <div style="display:flex;max-width:500px;margin:0 auto;gap:8px">
-            <input type="email" placeholder="أدخل بريدك الإلكتروني..." style="flex:1;padding:12px 16px;border:2px solid var(--primary);border-radius:var(--radius-md);font-size:14px">
-            <button class="btn btn-primary" style="padding:12px 24px">اشتراك</button>
+        <div class="newsletter">
+          <h2>📧 اشترك في النشرة البريدية</h2>
+          <p>احصل على أحدث العروض والمنتجات مباشرة في بريدك</p>
+          <div class="newsletter-form">
+            <input type="email" placeholder="أدخل بريدك الإلكتروني...">
+            <button class="btn btn-primary">اشتراك</button>
           </div>
         </div>
       </div>
@@ -334,17 +351,20 @@ function renderCategories() {
   content.innerHTML = `
     <section class="section">
       <div class="container">
-        <div class="product-breadcrumb">
+        <div class="breadcrumb">
           <a onclick="Router.navigate('home')">الرئيسية</a>
           <span class="sep">←</span>
-          <span>جميع التصنيفات</span>
+          <span class="current">جميع التصنيفات</span>
         </div>
-        <h2 class="section-title" style="margin-bottom:24px"><span class="title-icon">📂</span> جميع التصنيفات</h2>
-        <div class="categories-grid">
+        <h2 class="section-title" style="margin-bottom:var(--sp-8)">
+          <span class="icon">📂</span>
+          <span class="label">جميع التصنيفات</span>
+        </h2>
+        <div class="categories-grid stagger-in">
           ${STORE.categories.map(cat => `
-            <div class="category-card" onclick="Router.navigate('category/${cat.id}')" style="padding:24px">
-              <div class="cat-emoji" style="font-size:48px">${cat.icon}</div>
-              <div class="cat-name" style="font-size:15px;margin-top:8px">${cat.name}</div>
+            <div class="category-card" onclick="Router.navigate('category/${cat.id}')">
+              <div class="cat-emoji">${cat.icon}</div>
+              <div class="cat-name">${cat.name}</div>
               <div class="cat-count">${cat.count.toLocaleString()} منتج</div>
             </div>
           `).join('')}
@@ -362,7 +382,6 @@ function renderCategory(catId) {
 
   const products = STORE.products.filter(p => p.category == catId);
   const subCats = cat.subCategories || [];
-  let currentSort = 'popular';
   let filteredProducts = [...products];
 
   function reRender() {
@@ -371,13 +390,12 @@ function renderCategory(catId) {
     if (grid) {
       grid.innerHTML = filteredProducts.length > 0
         ? filteredProducts.map(renderProductCard).join('')
-        : '<div class="empty-state"><div class="empty-icon">📦</div><h3>لا توجد منتجات</h3><p>جرب تصفية أخرى</p></div>';
+        : '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📦</div><h3>لا توجد منتجات</h3><p>جرب تصفية أخرى</p></div>';
       count.textContent = filteredProducts.length;
     }
   }
 
   function sortProducts(sortBy) {
-    currentSort = sortBy;
     switch(sortBy) {
       case 'price-low': filteredProducts.sort((a,b) => a.price - b.price); break;
       case 'price-high': filteredProducts.sort((a,b) => b.price - a.price); break;
@@ -395,29 +413,27 @@ function renderCategory(catId) {
   content.innerHTML = `
     <section class="section">
       <div class="container">
-        <div class="product-breadcrumb">
+        <div class="breadcrumb">
           <a onclick="Router.navigate('home')">الرئيسية</a>
           <span class="sep">←</span>
           <a onclick="Router.navigate('categories')">التصنيفات</a>
           <span class="sep">←</span>
-          <span>${cat.icon} ${cat.name}</span>
+          <span class="current">${cat.icon} ${cat.name}</span>
         </div>
 
-        <!-- Sub Categories -->
         ${subCats.length > 0 ? `
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+          <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-bottom:var(--sp-6)">
             <span class="tag active" onclick="filterBySubCat(this, 'all')">الكل</span>
-            ${subCats.map(sub => `<span class="tag" onclick="filterBySubCat(this, '${sub}')">${sub}</span>`).join('')}
+            ${subCats.slice(0, 15).map(sub => `<span class="tag" onclick="filterBySubCat(this, '${sub}')">${sub}</span>`).join('')}
           </div>
         ` : ''}
 
-        <!-- Filter Bar -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;background:var(--white);padding:12px 16px;border-radius:var(--radius-lg);border:1px solid var(--gray-200);flex-wrap:wrap;gap:12px">
-          <div style="font-size:14px;color:var(--gray-600)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-6);background:var(--clr-bg-elevated);padding:var(--sp-4) var(--sp-5);border-radius:var(--r-xl);border:1px solid var(--clr-border-light);flex-wrap:wrap;gap:var(--sp-3)">
+          <div style="font-size:var(--text-sm);color:var(--clr-text-secondary)">
             <span id="category-count">${filteredProducts.length}</span> منتج
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <span style="font-size:13px;color:var(--gray-500);display:flex;align-items:center">ترتيب:</span>
+          <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+            <span style="font-size:var(--text-xs);color:var(--clr-text-tertiary);display:flex;align-items:center">ترتيب:</span>
             <button class="tag sort-btn active" data-sort="popular" onclick="sortProducts('popular')">الأكثر طلباً</button>
             <button class="tag sort-btn" data-sort="price-low" onclick="sortProducts('price-low')">السعر: منخفض</button>
             <button class="tag sort-btn" data-sort="price-high" onclick="sortProducts('price-high')">السعر: مرتفع</button>
@@ -426,7 +442,7 @@ function renderCategory(catId) {
           </div>
         </div>
 
-        <div id="category-products-grid" class="products-grid">
+        <div id="category-products-grid" class="products-grid stagger-in">
           ${filteredProducts.map(renderProductCard).join('')}
         </div>
       </div>
@@ -435,10 +451,8 @@ function renderCategory(catId) {
 }
 
 function filterBySubCat(element, subCat) {
-  // Update active tag
   element.parentElement.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
   element.classList.add('active');
-  // Filter would go here with actual data
   showToast(`تصفية: ${subCat === 'all' ? 'الكل' : subCat}`);
 }
 
@@ -451,37 +465,33 @@ function renderProduct(productId) {
   const cat = STORE.categories.find(c => c.id === product.category);
   const discount = Math.round((1 - product.price / product.originalPrice) * 100);
   let quantity = product.moq;
-
-  // Colors for gallery thumbnails
   const colors = ['#f0f0f0', '#e8e8e8', '#f5f5f5', '#ececec'];
 
   content.innerHTML = `
     <section class="product-page">
       <div class="container">
-        <!-- Breadcrumb -->
-        <div class="product-breadcrumb">
+        <div class="breadcrumb">
           <a onclick="Router.navigate('home')">الرئيسية</a>
           <span class="sep">←</span>
           <a onclick="Router.navigate('category/${product.category}')">${cat ? cat.icon + ' ' + cat.name : ''}</a>
           <span class="sep">←</span>
           <a onclick="Router.navigate('category/${product.category}')">${product.subCategory}</a>
           <span class="sep">←</span>
-          <span style="color:var(--gray-700)">${product.name.substring(0, 40)}...</span>
+          <span class="current">${product.name.substring(0, 40)}...</span>
         </div>
 
-        <!-- Product Detail -->
         <div class="product-detail">
           <!-- Gallery -->
           <div class="product-gallery">
             <div class="gallery-main" id="main-image">
-              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:140px;background:var(--gray-100);cursor:crosshair">${product.image}</div>
-              ${discount > 0 ? `<div style="position:absolute;top:12px;right:12px;background:var(--accent);color:white;padding:6px 12px;border-radius:var(--radius-md);font-weight:700;font-size:14px;z-index:2">-${discount}%</div>` : ''}
-              <button style="position:absolute;top:12px;left:12px;width:40px;height:40px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:var(--shadow-md);z-index:2;cursor:pointer;border:none" onclick="this.style.color=this.style.color==='red'?'':'red'">♡</button>
+              <div class="gallery-emoji">${product.image}</div>
+              ${discount > 0 ? `<div style="position:absolute;top:var(--sp-3);right:var(--sp-3);background:var(--clr-accent);color:white;padding:4px 14px;border-radius:var(--r-md);font-weight:800;font-size:var(--text-sm);z-index:2">-${discount}%</div>` : ''}
+              <button style="position:absolute;top:var(--sp-3);left:var(--sp-3);width:40px;height:40px;border-radius:var(--r-full);background:var(--clr-bg-elevated);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:var(--shadow-md);z-index:2;cursor:pointer;border:1px solid var(--clr-border-light)" onclick="this.style.color=this.style.color==='red'?'':'red'">♡</button>
             </div>
             <div class="gallery-thumbs">
               ${colors.map((c, i) => `
                 <div class="gallery-thumb ${i === 0 ? 'active' : ''}" onclick="this.parentElement.querySelectorAll('.gallery-thumb').forEach(t=>t.classList.remove('active'));this.classList.add('active')">
-                  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;background:${c}">${product.image}</div>
+                  ${product.image}
                 </div>
               `).join('')}
             </div>
@@ -489,44 +499,35 @@ function renderProduct(productId) {
 
           <!-- Info -->
           <div class="product-info-section">
-            <h1 style="font-size:20px;line-height:1.5;margin-bottom:12px">${product.name}</h1>
+            <h1>${product.name}</h1>
 
-            <div class="product-rating-row" style="margin-bottom:16px">
+            <div class="product-rating-row">
               <span class="stars">${generateStars(product.rating)}</span>
-              <span class="rating-score" style="font-weight:700;color:var(--primary)">${product.rating}</span>
-              <span style="color:var(--gray-500);font-size:13px">${product.reviews.toLocaleString()} تقييم</span>
-              <span style="color:var(--primary);font-size:13px;font-weight:600">${product.orders.toLocaleString()} طلب</span>
-              <span style="color:var(--gray-500);font-size:13px">❤️ ${Math.floor(product.orders * 0.3).toLocaleString()} إعجاب</span>
+              <span class="rating-score">${product.rating}</span>
+              <span style="color:var(--clr-text-tertiary)">${product.reviews.toLocaleString()} تقييم</span>
+              <span style="color:var(--clr-brand-dark);font-weight:600">${product.orders.toLocaleString()} طلب</span>
+              <span style="color:var(--clr-text-tertiary)">❤️ ${Math.floor(product.orders * 0.3).toLocaleString()} إعجاب</span>
             </div>
 
             <!-- Price -->
-            <div class="price-box" style="margin-bottom:20px">
-              <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:8px">
+            <div class="price-box">
+              <div style="display:flex;align-items:baseline;gap:var(--sp-3);margin-bottom:var(--sp-2)">
                 <span class="price-current">${formatPrice(product.price)} <span class="currency">${STORE.currency}</span></span>
                 <span class="price-original">${formatPrice(product.originalPrice)} ${STORE.currency}</span>
                 <span class="price-discount">-${discount}%</span>
               </div>
-              <div style="display:flex;gap:16px;font-size:12px;color:var(--gray-500)">
+              <div class="price-extras">
                 <span>💰 وفر ${formatPrice(product.originalPrice - product.price)} ${STORE.currency}</span>
                 <span>📦 ${product.price > 50000 ? 'شحن مجاني' : 'شحن: 3,000 ' + STORE.currency}</span>
                 <span>⏰ ينتهي خلال 2 يوم</span>
               </div>
             </div>
 
-            <!-- Shipping Info -->
-            <div style="background:var(--gray-50);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:20px;display:flex;gap:24px;font-size:13px">
-              <div>
-                <span style="color:var(--gray-500)">الشحن:</span>
-                <span style="font-weight:600;color:var(--success)">مجاني</span>
-              </div>
-              <div>
-                <span style="color:var(--gray-500)">التوصيل:</span>
-                <span style="font-weight:600">7-15 يوم عمل</span>
-              </div>
-              <div>
-                <span style="color:var(--gray-500)">المنشأ:</span>
-                <span style="font-weight:600">الصين</span>
-              </div>
+            <!-- Shipping -->
+            <div class="shipping-info">
+              <div><span class="label">الشحن:</span> <span class="value free">مجاني</span></div>
+              <div><span class="label">التوصيل:</span> <span class="value">7-15 يوم عمل</span></div>
+              <div><span class="label">المنشأ:</span> <span class="value">الصين</span></div>
             </div>
 
             <!-- Variants -->
@@ -543,14 +544,14 @@ function renderProduct(productId) {
 
             <!-- Quantity -->
             <div class="quantity-section">
-              <span style="font-weight:600;font-size:14px">الكمية:</span>
+              <span style="font-weight:600;font-size:var(--text-sm)">الكمية:</span>
               <div class="quantity-control">
                 <button onclick="updateQty(-1)">−</button>
                 <input type="number" id="qty-input" value="${quantity}" min="${product.moq}" onchange="validateQty(${product.moq})">
                 <button onclick="updateQty(1)">+</button>
               </div>
               <span class="moq-info">الحد الأدنى: ${product.moq} قطع</span>
-              <span style="font-size:12px;color:var(--gray-500);margin-inline-start:auto">${Math.floor(Math.random() * 500) + 100} قطعة متاحة</span>
+              <span style="font-size:var(--text-xs);color:var(--clr-text-tertiary);margin-inline-start:auto">${Math.floor(Math.random() * 500) + 100} قطعة متاحة</span>
             </div>
 
             <!-- Actions -->
@@ -558,24 +559,24 @@ function renderProduct(productId) {
               <button class="btn btn-primary btn-lg" onclick="addToCart(${product.id})" style="flex:2">
                 🛒 أضف إلى السلة
               </button>
-              <button class="btn btn-outline btn-lg" onclick="buyNow(${product.id})" style="flex:1">
+              <button class="btn btn-brand btn-lg" onclick="buyNow(${product.id})" style="flex:1">
                 ⚡ اطلب الآن
               </button>
             </div>
 
             <!-- Wishlist & Share -->
-            <div style="display:flex;gap:16px;margin-bottom:16px;font-size:13px">
-              <a style="color:var(--gray-500);cursor:pointer;display:flex;align-items:center;gap:4px">♡ أضف للمفضلة</a>
-              <a style="color:var(--gray-500);cursor:pointer;display:flex;align-items:center;gap:4px">↗ مشاركة</a>
-              <a style="color:var(--gray-500);cursor:pointer;display:flex;align-items:center;gap:4px">📊 مقارنة</a>
+            <div style="display:flex;gap:var(--sp-5);margin-bottom:var(--sp-5);font-size:var(--text-sm)">
+              <a style="color:var(--clr-text-tertiary);cursor:pointer;display:flex;align-items:center;gap:var(--sp-1)">♡ أضف للمفضلة</a>
+              <a style="color:var(--clr-text-tertiary);cursor:pointer;display:flex;align-items:center;gap:var(--sp-1)">↗ مشاركة</a>
+              <a style="color:var(--clr-text-tertiary);cursor:pointer;display:flex;align-items:center;gap:var(--sp-1)">📊 مقارنة</a>
             </div>
 
             <!-- Store Info -->
-            <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px;display:flex;align-items:center;gap:16px;margin-bottom:16px">
-              <div style="width:56px;height:56px;border-radius:var(--radius-lg);background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-size:28px;color:white">🏪</div>
+            <div class="store-card">
+              <div class="store-avatar">🏪</div>
               <div style="flex:1">
-                <div style="font-weight:700;font-size:15px;margin-bottom:2px">${product.store}</div>
-                <div style="display:flex;gap:12px;font-size:12px;color:var(--gray-500)">
+                <div class="store-name">${product.store}</div>
+                <div class="store-meta">
                   <span>⭐ ${product.storeBadge}</span>
                   <span>📦 ${Math.floor(Math.random() * 200) + 50} منتج</span>
                   <span>💬 ${Math.floor(Math.random() * 95) + 90}% ردود</span>
@@ -586,22 +587,22 @@ function renderProduct(productId) {
             </div>
 
             <!-- Guarantees -->
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px;background:var(--gray-50);border-radius:var(--radius-lg)">
-              <div style="text-align:center">
-                <div style="font-size:24px;margin-bottom:4px">🛡️</div>
-                <div style="font-size:11px;font-weight:600;color:var(--gray-700)">ضمان الجودة</div>
+            <div class="guarantees">
+              <div class="guarantee-item">
+                <div class="g-icon">🛡️</div>
+                <div class="g-label">ضمان الجودة</div>
               </div>
-              <div style="text-align:center">
-                <div style="font-size:24px;margin-bottom:4px">🚚</div>
-                <div style="font-size:11px;font-weight:600;color:var(--gray-700)">شحن سريع</div>
+              <div class="guarantee-item">
+                <div class="g-icon">🚚</div>
+                <div class="g-label">شحن سريع</div>
               </div>
-              <div style="text-align:center">
-                <div style="font-size:24px;margin-bottom:4px">🔄</div>
-                <div style="font-size:11px;font-weight:600;color:var(--gray-700)">إرجاع 7 أيام</div>
+              <div class="guarantee-item">
+                <div class="g-icon">🔄</div>
+                <div class="g-label">إرجاع 7 أيام</div>
               </div>
-              <div style="text-align:center">
-                <div style="font-size:24px;margin-bottom:4px">💳</div>
-                <div style="font-size:11px;font-weight:600;color:var(--gray-700)">دفع آمن</div>
+              <div class="guarantee-item">
+                <div class="g-icon">💳</div>
+                <div class="g-label">دفع آمن</div>
               </div>
             </div>
           </div>
@@ -616,7 +617,7 @@ function renderProduct(productId) {
             <div class="tab" onclick="switchTab(this,'shipping-panel')">الشحن والإرجاع</div>
           </div>
 
-          <div id="specs-panel" style="padding-top:20px">
+          <div id="specs-panel" style="padding-top:var(--sp-6)">
             <div class="specs-table">
               ${Object.entries(product.specs).map(([key, val]) => `
                 <div class="spec-row">
@@ -627,13 +628,13 @@ function renderProduct(productId) {
             </div>
           </div>
 
-          <div id="desc-panel" class="hidden" style="padding-top:20px">
+          <div id="desc-panel" class="hidden" style="padding-top:var(--sp-6)">
             <div style="max-width:800px">
-              <h3 style="font-size:18px;font-weight:700;margin-bottom:16px">${product.name}</h3>
-              <p style="font-size:15px;line-height:2;color:var(--gray-700);margin-bottom:16px">${product.description}</p>
-              <div style="background:var(--primary-bg);border-radius:var(--radius-md);padding:16px;margin-top:16px">
-                <h4 style="font-weight:700;margin-bottom:8px">✨ مميزات المنتج:</h4>
-                <ul style="padding-right:20px;color:var(--gray-700);line-height:2">
+              <h3 style="font-size:var(--text-lg);font-weight:700;margin-bottom:var(--sp-4)">${product.name}</h3>
+              <p style="font-size:var(--text-base);line-height:2;color:var(--clr-text-secondary);margin-bottom:var(--sp-4)">${product.description}</p>
+              <div style="background:var(--clr-brand-glow);border-radius:var(--r-xl);padding:var(--sp-5);margin-top:var(--sp-5)">
+                <h4 style="font-weight:700;margin-bottom:var(--sp-3)">✨ مميزات المنتج:</h4>
+                <ul style="padding-right:var(--sp-5);color:var(--clr-text-secondary);line-height:2">
                   <li>جودة عالية ومتانة تدوم طويلاً</li>
                   <li>تصميم عصري يناسب جميع الأذواق</li>
                   <li>سهولة الاستخدام والصيانة</li>
@@ -644,42 +645,40 @@ function renderProduct(productId) {
             </div>
           </div>
 
-          <div id="reviews-panel" class="hidden" style="padding-top:20px">
-            <!-- Rating Summary -->
-            <div style="display:flex;gap:40px;margin-bottom:24px;padding:20px;background:var(--gray-50);border-radius:var(--radius-lg)">
+          <div id="reviews-panel" class="hidden" style="padding-top:var(--sp-6)">
+            <div style="display:flex;gap:var(--sp-10);margin-bottom:var(--sp-6);padding:var(--sp-6);background:var(--clr-bg-sunken);border-radius:var(--r-xl)">
               <div style="text-align:center">
-                <div style="font-size:48px;font-weight:900;color:var(--primary)">${product.rating}</div>
-                <div class="stars" style="font-size:18px">${generateStars(product.rating)}</div>
-                <div style="font-size:13px;color:var(--gray-500);margin-top:4px">${product.reviews.toLocaleString()} تقييم</div>
+                <div style="font-size:var(--text-4xl);font-weight:900;color:var(--clr-brand-dark)">${product.rating}</div>
+                <div class="stars" style="font-size:var(--text-lg)">${generateStars(product.rating)}</div>
+                <div style="font-size:var(--text-sm);color:var(--clr-text-tertiary);margin-top:var(--sp-1)">${product.reviews.toLocaleString()} تقييم</div>
               </div>
               <div style="flex:1">
                 ${[5,4,3,2,1].map(star => {
                   const pct = star === 5 ? 65 : star === 4 ? 20 : star === 3 ? 10 : star === 2 ? 3 : 2;
                   return `
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-                      <span style="font-size:13px;width:20px">${star}★</span>
-                      <div style="flex:1;height:8px;background:var(--gray-200);border-radius:4px;overflow:hidden">
-                        <div style="width:${pct}%;height:100%;background:var(--accent-gold);border-radius:4px"></div>
+                    <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-1)">
+                      <span style="font-size:var(--text-sm);width:20px">${star}★</span>
+                      <div style="flex:1;height:8px;background:var(--clr-border);border-radius:var(--r-full);overflow:hidden">
+                        <div style="width:${pct}%;height:100%;background:var(--clr-warning);border-radius:var(--r-full)"></div>
                       </div>
-                      <span style="font-size:12px;color:var(--gray-500);width:30px">${pct}%</span>
+                      <span style="font-size:var(--text-xs);color:var(--clr-text-tertiary);width:30px">${pct}%</span>
                     </div>
                   `;
                 }).join('')}
               </div>
             </div>
-            <!-- Reviews List -->
             ${STORE.reviews.map(r => `
               <div class="review-card">
                 <div class="review-header">
                   <div class="review-avatar">${r.avatar}</div>
                   <div>
                     <div class="review-name">${r.user}</div>
-                    <div class="stars" style="font-size:12px">${generateStars(r.rating)}</div>
+                    <div class="stars" style="font-size:var(--text-xs)">${generateStars(r.rating)}</div>
                   </div>
                   <div class="review-date">${r.date}</div>
                 </div>
                 <div class="review-text">${r.text}</div>
-                <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--gray-500)">
+                <div style="display:flex;gap:var(--sp-4);margin-top:var(--sp-2);font-size:var(--text-xs);color:var(--clr-text-tertiary)">
                   <a style="cursor:pointer">👍 مفيد (${Math.floor(Math.random() * 20)})</a>
                   <a style="cursor:pointer">💬 رد</a>
                 </div>
@@ -687,11 +686,11 @@ function renderProduct(productId) {
             `).join('')}
           </div>
 
-          <div id="shipping-panel" class="hidden" style="padding-top:20px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+          <div id="shipping-panel" class="hidden" style="padding-top:var(--sp-6)">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-8)">
               <div>
-                <h4 style="font-weight:700;margin-bottom:12px">🚚 معلومات الشحن</h4>
-                <div style="font-size:14px;color:var(--gray-700);line-height:2">
+                <h4 style="font-weight:700;margin-bottom:var(--sp-4)">🚚 معلومات الشحن</h4>
+                <div style="font-size:var(--text-sm);color:var(--clr-text-secondary);line-height:2.2">
                   <p>• الشحن المجاني للطلبات فوق 50,000 ${STORE.currency}</p>
                   <p>• وقت التجهيز: 3-5 أيام عمل</p>
                   <p>• وقت التوصيل: 7-15 يوم عمل</p>
@@ -700,8 +699,8 @@ function renderProduct(productId) {
                 </div>
               </div>
               <div>
-                <h4 style="font-weight:700;margin-bottom:12px">🔄 سياسة الإرجاع</h4>
-                <div style="font-size:14px;color:var(--gray-700);line-height:2">
+                <h4 style="font-weight:700;margin-bottom:var(--sp-4)">🔄 سياسة الإرجاع</h4>
+                <div style="font-size:var(--text-sm);color:var(--clr-text-secondary);line-height:2.2">
                   <p>• إرجاع مجاني خلال 7 أيام</p>
                   <p>• المنتج يجب أن يكون في حالته الأصلية</p>
                   <p>• استرداد كامل للمبلغ</p>
@@ -714,20 +713,20 @@ function renderProduct(productId) {
         </div>
 
         <!-- Related Products -->
-        <div style="margin-top:40px">
+        <div style="margin-top:var(--sp-10)">
           <div class="section-header">
-            <h2 class="section-title"><span class="title-icon">🔗</span> منتجات مشابهة</h2>
+            <h2 class="section-title"><span class="icon">🔗</span> <span class="label">منتجات مشابهة</span></h2>
             <a class="section-more" onclick="Router.navigate('category/${product.category}')">عرض الكل ←</a>
           </div>
-          <div class="products-grid">
+          <div class="products-grid stagger-in">
             ${STORE.products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4).map(renderProductCard).join('')}
           </div>
         </div>
 
         <!-- Recently Viewed -->
-        <div style="margin-top:40px">
+        <div style="margin-top:var(--sp-10)">
           <div class="section-header">
-            <h2 class="section-title"><span class="title-icon">👀</span> شاهدت مؤخراً</h2>
+            <h2 class="section-title"><span class="icon">👀</span> <span class="label">شاهدت مؤخراً</span></h2>
           </div>
           <div class="products-grid">
             ${STORE.products.slice(0, 4).map(renderProductCard).join('')}
@@ -763,7 +762,6 @@ function validateQty(min) {
 function addToCart(productId) {
   const product = STORE.products.find(p => p.id === productId);
   if (!product) return;
-
   const existing = STORE.cart.find(item => item.id === productId);
   if (existing) {
     existing.quantity += parseInt(document.getElementById('qty-input')?.value || product.moq);
@@ -824,20 +822,18 @@ function renderCart() {
   content.innerHTML = `
     <section class="cart-page">
       <div class="container">
-        <div class="product-breadcrumb">
+        <div class="breadcrumb">
           <a onclick="Router.navigate('home')">الرئيسية</a>
           <span class="sep">←</span>
-          <span>سلة المشتريات</span>
+          <span class="current">سلة المشتريات</span>
         </div>
-        <h2 class="section-title" style="margin-bottom:24px">🛒 سلة المشتريات (${STORE.cart.length} منتج)</h2>
+        <h2 class="section-title" style="margin-bottom:var(--sp-6)">🛒 سلة المشتريات (${STORE.cart.length} منتج)</h2>
 
         <div class="cart-layout">
           <div class="cart-items">
             ${STORE.cart.map(item => `
               <div class="cart-item">
-                <div class="cart-item-image">
-                  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--gray-100)">${item.image}</div>
-                </div>
+                <div class="cart-item-image">${item.image}</div>
                 <div class="cart-item-info">
                   <div class="cart-item-title">${item.name}</div>
                   <div class="cart-item-variant">🏪 ${item.store}</div>
@@ -863,9 +859,9 @@ function renderCart() {
             </div>
             <div class="summary-row">
               <span>الشحن</span>
-              <span style="color:${shipping === 0 ? 'var(--success)' : 'inherit'}">${shipping === 0 ? 'مجاني' : formatPrice(shipping) + ' ' + STORE.currency}</span>
+              <span style="color:${shipping === 0 ? 'var(--clr-success)' : 'inherit'}">${shipping === 0 ? 'مجاني' : formatPrice(shipping) + ' ' + STORE.currency}</span>
             </div>
-            ${shipping === 0 ? '<div style="font-size:12px;color:var(--success);margin-bottom:8px">✓ تم تطبيق الشحن المجاني</div>' : ''}
+            ${shipping === 0 ? '<div style="font-size:var(--text-xs);color:var(--clr-success);margin-bottom:var(--sp-2)">✓ تم تطبيق الشحن المجاني</div>' : ''}
             <div class="summary-row total">
               <span>الإجمالي</span>
               <span>${formatPrice(total)} ${STORE.currency}</span>
@@ -873,7 +869,7 @@ function renderCart() {
             <button class="btn btn-primary btn-block btn-lg" onclick="Router.navigate('checkout')">
               إتمام الطلب ←
             </button>
-            <button class="btn btn-ghost btn-block" onclick="Router.navigate('home')" style="margin-top:8px">
+            <button class="btn btn-ghost btn-block" onclick="Router.navigate('home')" style="margin-top:var(--sp-2)">
               متابعة التسوق
             </button>
           </div>
@@ -893,18 +889,17 @@ function renderCheckout() {
   content.innerHTML = `
     <section class="section">
       <div class="container">
-        <div class="product-breadcrumb">
+        <div class="breadcrumb">
           <a onclick="Router.navigate('home')">الرئيسية</a>
           <span class="sep">←</span>
           <a onclick="Router.navigate('cart')">السلة</a>
           <span class="sep">←</span>
-          <span>إتمام الطلب</span>
+          <span class="current">إتمام الطلب</span>
         </div>
-        <h2 class="section-title" style="margin-bottom:24px">📦 إتمام الطلب</h2>
+        <h2 class="section-title" style="margin-bottom:var(--sp-6)">📦 إتمام الطلب</h2>
 
         <div class="checkout-layout">
           <div>
-            <!-- Shipping Info -->
             <div class="checkout-section">
               <h3>🚚 معلومات الشحن</h3>
               <div class="form-grid">
@@ -919,16 +914,9 @@ function renderCheckout() {
                 <div class="form-group">
                   <label>المحافظة</label>
                   <select>
-                    <option>صنعاء</option>
-                    <option>عدن</option>
-                    <option>تعز</option>
-                    <option>الحديدة</option>
-                    <option>إب</option>
-                    <option>ذمار</option>
-                    <option>حضرموت</option>
-                    <option>مأرب</option>
-                    <option>حجة</option>
-                    <option>لحج</option>
+                    <option>صنعاء</option><option>عدن</option><option>تعز</option><option>الحديدة</option>
+                    <option>إب</option><option>ذمار</option><option>حضرموت</option><option>مأرب</option>
+                    <option>حجة</option><option>لحج</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -942,65 +930,62 @@ function renderCheckout() {
               </div>
             </div>
 
-            <!-- Payment Method -->
             <div class="checkout-section">
               <h3>💳 طريقة الدفع</h3>
-              <div style="display:flex;flex-direction:column;gap:12px">
-                <label style="display:flex;align-items:center;gap:12px;padding:16px;border:2px solid var(--primary);border-radius:var(--radius-md);cursor:pointer;background:var(--primary-bg)">
-                  <input type="radio" name="payment" checked style="accent-color:var(--primary)">
+              <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+                <label style="display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-4);border:2px solid var(--clr-brand);border-radius:var(--r-xl);cursor:pointer;background:var(--clr-brand-glow)">
+                  <input type="radio" name="payment" checked style="accent-color:var(--clr-brand)">
                   <span style="font-size:24px">💵</span>
                   <div>
                     <div style="font-weight:700">الدفع عند الاستلام</div>
-                    <div style="font-size:12px;color:var(--gray-500)">ادفع نقداً عند استلام الطلب</div>
+                    <div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">ادفع نقداً عند استلام الطلب</div>
                   </div>
                 </label>
-                <label style="display:flex;align-items:center;gap:12px;padding:16px;border:2px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer">
-                  <input type="radio" name="payment" style="accent-color:var(--primary)">
+                <label style="display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-4);border:2px solid var(--clr-border);border-radius:var(--r-xl);cursor:pointer">
+                  <input type="radio" name="payment" style="accent-color:var(--clr-brand)">
                   <span style="font-size:24px">📱</span>
                   <div>
                     <div style="font-weight:700">محفظة إلكترونية</div>
-                    <div style="font-size:12px;color:var(--gray-500)">جوالي كاش، يمن موبايل كاش</div>
+                    <div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">جوالي كاش، يمن موبايل كاش</div>
                   </div>
                 </label>
-                <label style="display:flex;align-items:center;gap:12px;padding:16px;border:2px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer">
-                  <input type="radio" name="payment" style="accent-color:var(--primary)">
+                <label style="display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-4);border:2px solid var(--clr-border);border-radius:var(--r-xl);cursor:pointer">
+                  <input type="radio" name="payment" style="accent-color:var(--clr-brand)">
                   <span style="font-size:24px">🏦</span>
                   <div>
                     <div style="font-weight:700">تحويل بنكي</div>
-                    <div style="font-size:12px;color:var(--gray-500)">تحويل إلى حسابنا البنكي</div>
+                    <div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">تحويل إلى حسابنا البنكي</div>
                   </div>
                 </label>
               </div>
             </div>
 
-            <!-- Notes -->
             <div class="checkout-section">
               <h3>📝 ملاحظات الطلب</h3>
               <textarea rows="3" placeholder="أي ملاحظات أو تعليمات خاصة للطلب..." style="width:100%"></textarea>
             </div>
           </div>
 
-          <!-- Order Summary -->
           <div>
             <div class="cart-summary" style="position:sticky;top:120px">
               <h3>ملخص الطلب</h3>
               ${STORE.cart.map(item => `
-                <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--gray-100)">
-                  <div style="width:48px;height:48px;border-radius:var(--radius-md);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${item.image}</div>
+                <div style="display:flex;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--clr-border-light)">
+                  <div style="width:48px;height:48px;border-radius:var(--r-lg);background:var(--clr-bg-sunken);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${item.image}</div>
                   <div style="flex:1;min-width:0">
-                    <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</div>
-                    <div style="font-size:12px;color:var(--gray-500)">× ${item.quantity}</div>
+                    <div style="font-size:var(--text-sm);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</div>
+                    <div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">× ${item.quantity}</div>
                   </div>
-                  <div style="font-weight:700;font-size:14px;white-space:nowrap">${formatPrice(item.price * item.quantity)} ${STORE.currency}</div>
+                  <div style="font-weight:700;font-size:var(--text-sm);white-space:nowrap">${formatPrice(item.price * item.quantity)} ${STORE.currency}</div>
                 </div>
               `).join('')}
-              <div class="summary-row" style="margin-top:12px">
+              <div class="summary-row" style="margin-top:var(--sp-3)">
                 <span>المجموع الفرعي</span>
                 <span>${formatPrice(subtotal)} ${STORE.currency}</span>
               </div>
               <div class="summary-row">
                 <span>الشحن</span>
-                <span style="color:${shipping === 0 ? 'var(--success)' : 'inherit'}">${shipping === 0 ? 'مجاني' : formatPrice(shipping) + ' ' + STORE.currency}</span>
+                <span style="color:${shipping === 0 ? 'var(--clr-success)' : 'inherit'}">${shipping === 0 ? 'مجاني' : formatPrice(shipping) + ' ' + STORE.currency}</span>
               </div>
               <div class="summary-row total">
                 <span>الإجمالي</span>
@@ -1031,7 +1016,7 @@ function renderLogin() {
     <div class="auth-page">
       <div class="auth-card">
         <h2>تسجيل الدخول</h2>
-        <p class="auth-sub">مرحباً بك في سوق الجمله اليمني</p>
+        <p class="auth-sub">مرحباً بك في MARK — سوق الجمله اليمني</p>
 
         <div class="social-login">
           <button class="social-btn">📱 Google</button>
@@ -1048,16 +1033,17 @@ function renderLogin() {
           <label>كلمة المرور</label>
           <input type="password" placeholder="أدخل كلمة المرور">
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:13px">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-            <input type="checkbox" style="accent-color:var(--primary)"> تذكرني
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-6);font-size:var(--text-sm)">
+          <label style="display:flex;align-items:center;gap:var(--sp-2);cursor:pointer">
+            <input type="checkbox" style="accent-color:var(--clr-brand)"> تذكرني
           </label>
-          <a style="color:var(--primary);cursor:pointer">نسيت كلمة المرور؟</a>
+          <a style="color:var(--clr-brand);cursor:pointer">نسيت كلمة المرور؟</a>
         </div>
         <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()">تسجيل الدخول</button>
 
-        <p style="text-align:center;margin-top:20px;font-size:14px;color:var(--gray-600)">
-          ليس لديك حساب؟ <a style="color:var(--primary);font-weight:600;cursor:pointer" onclick="Router.navigate('register')">إنشاء حساب جديد</a>
+        <p style="text-align:center;margin-top:var(--sp-6);font-size:var(--text-sm);color:var(--clr-text-secondary)">
+          ليس لديك حساب؟ <a style="color:var(--clr-brand);font-weight:600;cursor:pointer" onclick="Router.navigate('register')">إنشاء حساب جديد</a>
         </p>
       </div>
     </div>
@@ -1077,13 +1063,13 @@ function renderRegister() {
     <div class="auth-page">
       <div class="auth-card">
         <h2>إنشاء حساب جديد</h2>
-        <p class="auth-sub">انضم إلى سوق الجمله اليمني</p>
+        <p class="auth-sub">انضم إلى MARK — سوق الجمله اليمني</p>
 
-        <div style="display:flex;gap:12px;margin-bottom:20px">
-          <button class="btn btn-outline" style="flex:1" onclick="this.parentElement.querySelectorAll('.btn').forEach(b=>b.classList.remove('btn-primary'));this.classList.add('btn-primary');this.classList.remove('btn-outline')">
+        <div style="display:flex;gap:var(--sp-3);margin-bottom:var(--sp-6)">
+          <button class="btn btn-outline" style="flex:1" onclick="this.parentElement.querySelectorAll('.btn').forEach(b=>{b.classList.remove('btn-primary');b.classList.add('btn-outline')});this.classList.add('btn-primary');this.classList.remove('btn-outline')">
             👤 مشتري
           </button>
-          <button class="btn btn-outline" style="flex:1" onclick="this.parentElement.querySelectorAll('.btn').forEach(b=>b.classList.remove('btn-primary'));this.classList.add('btn-primary');this.classList.remove('btn-outline')">
+          <button class="btn btn-outline" style="flex:1" onclick="this.parentElement.querySelectorAll('.btn').forEach(b=>{b.classList.remove('btn-primary');b.classList.add('btn-outline')});this.classList.add('btn-primary');this.classList.remove('btn-outline')">
             🏪 تاجر / بائع
           </button>
         </div>
@@ -1111,15 +1097,15 @@ function renderRegister() {
           </div>
         </div>
 
-        <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:20px;font-size:13px;cursor:pointer">
-          <input type="checkbox" style="accent-color:var(--primary);margin-top:3px">
-          <span>أوافق على <a style="color:var(--primary)">الشروط والأحكام</a> و<a style="color:var(--primary)">سياسة الخصوصية</a></span>
+        <label style="display:flex;align-items:flex-start;gap:var(--sp-2);margin-bottom:var(--sp-6);font-size:var(--text-sm);cursor:pointer">
+          <input type="checkbox" style="accent-color:var(--clr-brand);margin-top:3px">
+          <span>أوافق على <a style="color:var(--clr-brand)">الشروط والأحكام</a> و<a style="color:var(--clr-brand)">سياسة الخصوصية</a></span>
         </label>
 
         <button class="btn btn-primary btn-block btn-lg" onclick="doRegister()">إنشاء الحساب</button>
 
-        <p style="text-align:center;margin-top:20px;font-size:14px;color:var(--gray-600)">
-          لديك حساب بالفعل؟ <a style="color:var(--primary);font-weight:600;cursor:pointer" onclick="Router.navigate('login')">تسجيل الدخول</a>
+        <p style="text-align:center;margin-top:var(--sp-6);font-size:var(--text-sm);color:var(--clr-text-secondary)">
+          لديك حساب بالفعل؟ <a style="color:var(--clr-brand);font-weight:600;cursor:pointer" onclick="Router.navigate('login')">تسجيل الدخول</a>
         </p>
       </div>
     </div>
@@ -1146,15 +1132,14 @@ function renderOrders() {
   content.innerHTML = `
     <section class="section">
       <div class="container">
-        <div class="product-breadcrumb">
+        <div class="breadcrumb">
           <a onclick="Router.navigate('home')">الرئيسية</a>
           <span class="sep">←</span>
-          <span>طلباتي</span>
+          <span class="current">طلباتي</span>
         </div>
-        <h2 class="section-title" style="margin-bottom:24px">📦 طلباتي</h2>
+        <h2 class="section-title" style="margin-bottom:var(--sp-6)">📦 طلباتي</h2>
 
-        <!-- Tabs -->
-        <div class="tabs" style="margin-bottom:24px">
+        <div class="tabs" style="margin-bottom:var(--sp-6)">
           <div class="tab active">الكل</div>
           <div class="tab">قيد التجهيز</div>
           <div class="tab">تم الشحن</div>
@@ -1169,27 +1154,25 @@ function renderOrders() {
               <div class="order-header">
                 <div>
                   <span style="font-weight:700">${order.id}</span>
-                  <span style="margin-inline-start:16px;color:var(--gray-500)">${order.date}</span>
+                  <span style="margin-inline-start:var(--sp-4);color:var(--clr-text-tertiary)">${order.date}</span>
                 </div>
                 <span class="status-badge ${status.class}">${status.icon} ${status.label}</span>
               </div>
               <div class="order-body">
                 <div class="order-item">
-                  <div class="order-item-img">
-                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--gray-100)">📦</div>
-                  </div>
+                  <div class="order-item-img">📦</div>
                   <div>
-                    <div style="font-weight:500;font-size:14px">${order.items} منتجات</div>
-                    <div style="font-size:12px;color:var(--gray-500)">طلب من سوق الجمله اليمني</div>
+                    <div style="font-weight:500;font-size:var(--text-sm)">${order.items} منتجات</div>
+                    <div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">طلب من MARK — سوق الجمله اليمني</div>
                   </div>
                 </div>
               </div>
               <div class="order-footer">
                 <div>
-                  <span style="font-size:13px;color:var(--gray-500)">الإجمالي: </span>
+                  <span style="font-size:var(--text-sm);color:var(--clr-text-tertiary)">الإجمالي: </span>
                   <span class="order-total">${formatPrice(order.total)} ${STORE.currency}</span>
                 </div>
-                <div style="display:flex;gap:8px">
+                <div style="display:flex;gap:var(--sp-2)">
                   <button class="btn btn-outline btn-sm">تتبع الطلب</button>
                   ${order.status === 'delivered' ? '<button class="btn btn-primary btn-sm">تقييم</button>' : ''}
                   ${order.status === 'pending' ? '<button class="btn btn-danger btn-sm">إلغاء</button>' : ''}
@@ -1203,8 +1186,7 @@ function renderOrders() {
   `;
 }
 
-// --- Page: Merchant Dashboard ---
-// ===== Dashboard Sidebar Helper =====
+// --- Dashboard Sidebar ---
 function renderDashboardSidebar(activeItem) {
   const stats = STORE.merchantStats;
   return `
@@ -1213,7 +1195,7 @@ function renderDashboardSidebar(activeItem) {
         <div class="user-avatar">🏪</div>
         <div class="user-name">تاجر الجملة</div>
         <div class="user-role">تاجر ذهبي ⭐</div>
-        <div style="display:flex;gap:8px;margin-top:8px;justify-content:center">
+        <div style="display:flex;gap:var(--sp-2);margin-top:var(--sp-2);justify-content:center">
           <span class="badge badge-success">متصل</span>
           <span class="badge badge-info">موثق</span>
         </div>
@@ -1225,23 +1207,22 @@ function renderDashboardSidebar(activeItem) {
         <a class="${activeItem === 'messages' ? 'active' : ''}"><span class="nav-icon">💬</span> الرسائل <span class="nav-badge">5</span></a>
         <a class="${activeItem === 'analytics' ? 'active' : ''}"><span class="nav-icon">📈</span> التحليلات</a>
         <a class="${activeItem === 'earnings' ? 'active' : ''}"><span class="nav-icon">💰</span> الأرباح</a>
-        <div class="dropdown-divider" style="margin:8px 0"></div>
+        <div style="height:1px;background:var(--clr-border-light);margin:var(--sp-2) 0"></div>
         <a class="${activeItem === 'settings' ? 'active' : ''}"><span class="nav-icon">⚙️</span> الإعدادات</a>
         <a class="${activeItem === 'customize' ? 'active' : ''}"><span class="nav-icon">🎨</span> تخصيص المتجر</a>
         <a class="${activeItem === 'coupons' ? 'active' : ''}"><span class="nav-icon">🏷️</span> العروض والكوبونات</a>
         <a class="${activeItem === 'reviews' ? 'active' : ''}"><span class="nav-icon">⭐</span> التقييمات</a>
-        <div class="dropdown-divider" style="margin:8px 0"></div>
+        <div style="height:1px;background:var(--clr-border-light);margin:var(--sp-2) 0"></div>
         <a onclick="Router.navigate('home')"><span class="nav-icon">🏪</span> عرض المتجر</a>
       </nav>
     </div>
   `;
 }
 
+// --- Page: Dashboard ---
 function renderDashboard() {
   const content = document.getElementById('app-content');
   const stats = STORE.merchantStats;
-
-  // Mock sales data for chart
   const salesData = [65, 78, 52, 88, 95, 72, 110, 85, 92, 105, 88, 120];
   const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
   const maxSale = Math.max(...salesData);
@@ -1249,136 +1230,119 @@ function renderDashboard() {
   content.innerHTML = `
     <div class="dashboard-layout">
       ${renderDashboardSidebar('dashboard')}
-
-      <!-- Content -->
       <div class="dashboard-content">
         <div class="dashboard-header">
           <div>
             <h2>لوحة التحكم</h2>
-            <p style="color:var(--gray-500);font-size:14px">مرحباً بك، تاجر الجملة 👋 آخر تحديث: اليوم 10:45 ص</p>
+            <p style="color:var(--clr-text-tertiary);font-size:var(--text-sm)">مرحباً بك، تاجر الجملة 👋 آخر تحديث: اليوم 10:45 ص</p>
           </div>
-          <div style="display:flex;gap:8px">
-            <select style="padding:8px 16px;border-radius:var(--radius-md);border:1px solid var(--gray-300)">
+          <div style="display:flex;gap:var(--sp-2)">
+            <select style="padding:var(--sp-2) var(--sp-4);border-radius:var(--r-md);border:1px solid var(--clr-border);font-size:var(--text-sm)">
               <option>آخر 7 أيام</option>
               <option selected>آخر 30 يوم</option>
               <option>آخر 3 أشهر</option>
               <option>هذا العام</option>
             </select>
-            <button class="btn btn-outline btn-sm">📊 تصدير التقرير</button>
+            <button class="btn btn-outline btn-sm">📊 تصدير</button>
             <button class="btn btn-primary btn-sm" onclick="Router.navigate('dashboard/products')">+ إضافة منتج</button>
           </div>
         </div>
 
         <!-- Stats Cards -->
         <div class="stats-grid">
-          <div class="stat-card" style="border-top:3px solid var(--primary)">
+          <div class="stat-card" style="border-top:3px solid var(--clr-brand)">
             <div style="display:flex;justify-content:space-between;align-items:flex-start">
               <div>
                 <div class="stat-label">إجمالي المبيعات</div>
                 <div class="stat-value">${formatPrice(stats.totalSales)}</div>
                 <div class="stat-change up">↑ ${stats.monthlyGrowth}% هذا الشهر</div>
               </div>
-              <div class="stat-icon" style="background:var(--primary-bg);padding:12px;border-radius:var(--radius-lg)">💰</div>
+              <div style="background:var(--clr-brand-glow);padding:var(--sp-3);border-radius:var(--r-xl);font-size:24px">💰</div>
             </div>
           </div>
-          <div class="stat-card" style="border-top:3px solid var(--info)">
+          <div class="stat-card" style="border-top:3px solid var(--clr-info)">
             <div style="display:flex;justify-content:space-between;align-items:flex-start">
               <div>
                 <div class="stat-label">إجمالي الطلبات</div>
                 <div class="stat-value">${stats.totalOrders.toLocaleString()}</div>
                 <div class="stat-change up">↑ 8.3% هذا الشهر</div>
               </div>
-              <div class="stat-icon" style="background:#E3F2FD;padding:12px;border-radius:var(--radius-lg)">📦</div>
+              <div style="background:var(--clr-info-soft);padding:var(--sp-3);border-radius:var(--r-xl);font-size:24px">📦</div>
             </div>
           </div>
-          <div class="stat-card" style="border-top:3px solid var(--success)">
+          <div class="stat-card" style="border-top:3px solid var(--clr-success)">
             <div style="display:flex;justify-content:space-between;align-items:flex-start">
               <div>
                 <div class="stat-label">المنتجات النشطة</div>
                 <div class="stat-value">${stats.totalProducts}</div>
                 <div class="stat-change up">+12 منتج جديد</div>
               </div>
-              <div class="stat-icon" style="background:#E6F9F1;padding:12px;border-radius:var(--radius-lg)">🛍️</div>
+              <div style="background:var(--clr-success-soft);padding:var(--sp-3);border-radius:var(--r-xl);font-size:24px">🛍️</div>
             </div>
           </div>
-          <div class="stat-card" style="border-top:3px solid var(--accent-gold)">
+          <div class="stat-card" style="border-top:3px solid var(--clr-warning)">
             <div style="display:flex;justify-content:space-between;align-items:flex-start">
               <div>
                 <div class="stat-label">العملاء</div>
                 <div class="stat-value">${stats.totalCustomers.toLocaleString()}</div>
                 <div class="stat-change up">↑ 15.2% هذا الشهر</div>
               </div>
-              <div class="stat-icon" style="background:#FFF8E1;padding:12px;border-radius:var(--radius-lg)">👥</div>
+              <div style="background:var(--clr-warning-soft);padding:var(--sp-3);border-radius:var(--r-xl);font-size:24px">👥</div>
             </div>
           </div>
         </div>
 
         <!-- Sales Chart & Order Status -->
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px">
-          <!-- Sales Chart -->
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--gray-200)">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:var(--sp-5);margin-bottom:var(--sp-6)">
+          <div style="background:var(--clr-bg-elevated);border-radius:var(--r-xl);padding:var(--sp-6);border:1px solid var(--clr-border-light)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-5)">
               <h3 style="font-weight:700">📊 المبيعات الشهرية</h3>
-              <div style="display:flex;gap:8px">
+              <div style="display:flex;gap:var(--sp-2)">
                 <button class="tag active">شهري</button>
                 <button class="tag">أسبوعي</button>
                 <button class="tag">يومي</button>
               </div>
             </div>
-            <div style="display:flex;align-items:flex-end;gap:8px;height:200px;padding-top:20px">
+            <div style="display:flex;align-items:flex-end;gap:var(--sp-2);height:200px;padding-top:var(--sp-5)">
               ${salesData.map((val, i) => `
-                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
-                  <div style="font-size:10px;color:var(--gray-500)">${(val * 1000).toLocaleString()}</div>
-                  <div style="width:100%;height:${(val / maxSale) * 150}px;background:${i === salesData.length - 1 ? 'var(--primary)' : 'var(--primary-bg)'};border-radius:4px 4px 0 0;transition:all 0.3s;cursor:pointer" onmouseover="this.style.background='var(--primary)'" onmouseout="this.style.background='${i === salesData.length - 1 ? 'var(--primary)' : 'var(--primary-bg)'}'"></div>
-                  <div style="font-size:10px;color:var(--gray-500)">${months[i].substring(0, 3)}</div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:var(--sp-1)">
+                  <div style="font-size:10px;color:var(--clr-text-tertiary)">${(val * 1000).toLocaleString()}</div>
+                  <div style="width:100%;height:${(val / maxSale) * 150}px;background:${i === salesData.length - 1 ? 'var(--clr-brand)' : 'var(--clr-brand-glow)'};border-radius:var(--r-xs) var(--r-xs) 0 0;transition:all 0.3s;cursor:pointer" onmouseover="this.style.background='var(--clr-brand)'" onmouseout="this.style.background='${i === salesData.length - 1 ? 'var(--clr-brand)' : 'var(--clr-brand-glow)'}'"></div>
+                  <div style="font-size:10px;color:var(--clr-text-tertiary)">${months[i].substring(0, 3)}</div>
                 </div>
               `).join('')}
             </div>
           </div>
 
-          <!-- Order Status -->
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--gray-200)">
-            <h3 style="font-weight:700;margin-bottom:20px">📋 حالة الطلبات</h3>
-            <div style="display:flex;flex-direction:column;gap:16px">
-              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#FFF8E1;border-radius:var(--radius-md);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
+          <div style="background:var(--clr-bg-elevated);border-radius:var(--r-xl);padding:var(--sp-6);border:1px solid var(--clr-border-light)">
+            <h3 style="font-weight:700;margin-bottom:var(--sp-5)">📋 حالة الطلبات</h3>
+            <div style="display:flex;flex-direction:column;gap:var(--sp-4)">
+              <div style="display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--clr-warning-soft);border-radius:var(--r-lg);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
                 <div style="font-size:24px">⏳</div>
-                <div style="flex:1">
-                  <div style="font-weight:600;font-size:14px">في الانتظار</div>
-                  <div style="font-size:12px;color:var(--gray-500)">يحتاج مراجعة</div>
-                </div>
-                <div style="font-size:24px;font-weight:900;color:#F57F17">${stats.pendingOrders}</div>
+                <div style="flex:1"><div style="font-weight:600;font-size:var(--text-sm)">في الانتظار</div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">يحتاج مراجعة</div></div>
+                <div style="font-size:24px;font-weight:900;color:var(--clr-warning)">${stats.pendingOrders}</div>
               </div>
-              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#E3F2FD;border-radius:var(--radius-md);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
+              <div style="display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--clr-info-soft);border-radius:var(--r-lg);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
                 <div style="font-size:24px">📦</div>
-                <div style="flex:1">
-                  <div style="font-weight:600;font-size:14px">قيد التجهيز</div>
-                  <div style="font-size:12px;color:var(--gray-500)">جاري التحضير</div>
-                </div>
-                <div style="font-size:24px;font-weight:900;color:var(--info)">${stats.processingOrders}</div>
+                <div style="flex:1"><div style="font-weight:600;font-size:var(--text-sm)">قيد التجهيز</div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">جاري التحضير</div></div>
+                <div style="font-size:24px;font-weight:900;color:var(--clr-info)">${stats.processingOrders}</div>
               </div>
-              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#E6F9F1;border-radius:var(--radius-md);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
+              <div style="display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--clr-success-soft);border-radius:var(--r-lg);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
                 <div style="font-size:24px">🚚</div>
-                <div style="flex:1">
-                  <div style="font-weight:600;font-size:14px">تم الشحن</div>
-                  <div style="font-size:12px;color:var(--gray-500)">في الطريق</div>
-                </div>
-                <div style="font-size:24px;font-weight:900;color:var(--success)">${stats.shippedOrders}</div>
+                <div style="flex:1"><div style="font-weight:600;font-size:var(--text-sm)">تم الشحن</div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">في الطريق</div></div>
+                <div style="font-size:24px;font-weight:900;color:var(--clr-success)">${stats.shippedOrders}</div>
               </div>
-              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--gray-50);border-radius:var(--radius-md);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
+              <div style="display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--clr-bg-sunken);border-radius:var(--r-lg);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
                 <div style="font-size:24px">✅</div>
-                <div style="flex:1">
-                  <div style="font-weight:600;font-size:14px">تم التوصيل</div>
-                  <div style="font-size:12px;color:var(--gray-500)">مكتملة</div>
-                </div>
-                <div style="font-size:24px;font-weight:900;color:var(--gray-700)">890</div>
+                <div style="flex:1"><div style="font-weight:600;font-size:var(--text-sm)">تم التوصيل</div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">مكتملة</div></div>
+                <div style="font-size:24px;font-weight:900;color:var(--clr-text-secondary)">890</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Recent Orders & Top Products -->
-        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;margin-bottom:24px">
-          <!-- Recent Orders -->
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:var(--sp-5)">
           <div class="dashboard-table">
             <div class="dashboard-table-header">
               <h3>🛒 آخر الطلبات</h3>
@@ -1386,90 +1350,39 @@ function renderDashboard() {
             </div>
             <div class="table-wrapper">
               <table>
-                <thead>
-                  <tr>
-                    <th>رقم الطلب</th>
-                    <th>العميل</th>
-                    <th>المبلغ</th>
-                    <th>الحالة</th>
-                    <th>إجراءات</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>رقم الطلب</th><th>العميل</th><th>المبلغ</th><th>الحالة</th><th>إجراءات</th></tr></thead>
                 <tbody>
                   ${STORE.orders.slice(0, 5).map(order => {
-                    const statusMap = {
-                      pending: { label: 'في الانتظار', class: 'pending', icon: '⏳' },
-                      processing: { label: 'قيد التجهيز', class: 'processing', icon: '📦' },
-                      shipped: { label: 'تم الشحن', class: 'shipped', icon: '🚚' },
-                      delivered: { label: 'تم التوصيل', class: 'delivered', icon: '✅' },
-                    };
-                    const status = statusMap[order.status];
+                    const sm = { pending: { label: 'في الانتظار', class: 'pending', icon: '⏳' }, processing: { label: 'قيد التجهيز', class: 'processing', icon: '📦' }, shipped: { label: 'تم الشحن', class: 'shipped', icon: '🚚' }, delivered: { label: 'تم التوصيل', class: 'delivered', icon: '✅' } };
+                    const status = sm[order.status];
                     const customers = ['أحمد محمد', 'سارة علي', 'خالد حسن', 'فاطمة أحمد', 'محمد اليمن'];
-                    return `
-                      <tr>
-                        <td style="font-weight:600;font-size:13px">${order.id}</td>
-                        <td>
-                          <div style="display:flex;align-items:center;gap:8px">
-                            <div style="width:32px;height:32px;border-radius:50%;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--primary)">${customers[STORE.orders.indexOf(order)].charAt(0)}</div>
-                            <span style="font-size:13px">${customers[STORE.orders.indexOf(order)]}</span>
-                          </div>
-                        </td>
-                        <td style="font-weight:700;font-size:13px">${formatPrice(order.total)} ${STORE.currency}</td>
-                        <td><span class="status-badge ${status.class}">${status.icon} ${status.label}</span></td>
-                        <td>
-                          <button class="btn btn-ghost btn-sm" onclick="showOrderDetail('${order.id}')">👁️</button>
-                        </td>
-                      </tr>
-                    `;
+                    const i = STORE.orders.indexOf(order);
+                    return `<tr>
+                      <td style="font-weight:600;font-size:var(--text-sm)">${order.id}</td>
+                      <td><div style="display:flex;align-items:center;gap:var(--sp-2)"><div style="width:32px;height:32px;border-radius:var(--r-full);background:var(--clr-brand-glow);display:flex;align-items:center;justify-content:center;font-size:var(--text-xs);font-weight:700;color:var(--clr-brand-dark)">${customers[i].charAt(0)}</div><span style="font-size:var(--text-sm)">${customers[i]}</span></div></td>
+                      <td style="font-weight:700;font-size:var(--text-sm)">${formatPrice(order.total)} ${STORE.currency}</td>
+                      <td><span class="status-badge ${status.class}">${status.icon} ${status.label}</span></td>
+                      <td><button class="btn btn-ghost btn-sm" onclick="showOrderDetail('${order.id}')">👁️</button></td>
+                    </tr>`;
                   }).join('')}
                 </tbody>
               </table>
             </div>
           </div>
 
-          <!-- Top Products -->
-          <div style="background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--gray-200);overflow:hidden">
-            <div style="padding:16px 20px;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center">
-              <h3 style="font-weight:700;font-size:16px">🔥 الأكثر مبيعاً</h3>
+          <div style="background:var(--clr-bg-elevated);border-radius:var(--r-xl);border:1px solid var(--clr-border-light);overflow:hidden">
+            <div style="padding:var(--sp-4) var(--sp-5);border-bottom:1px solid var(--clr-border-light);display:flex;justify-content:space-between;align-items:center">
+              <h3 style="font-weight:700;font-size:var(--text-base)">🔥 الأكثر مبيعاً</h3>
               <button class="btn btn-ghost btn-sm" onclick="Router.navigate('dashboard/products')">عرض الكل</button>
             </div>
-            <div>
-              ${STORE.products.slice(0, 5).map((p, i) => `
-                <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--gray-100);cursor:pointer" onclick="Router.navigate('product/${p.id}')">
-                  <div style="width:24px;height:24px;border-radius:50%;background:${i < 3 ? 'var(--primary)' : 'var(--gray-300)'};color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${i + 1}</div>
-                  <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:20px">${p.image}</div>
-                  <div style="flex:1;min-width:0">
-                    <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
-                    <div style="font-size:11px;color:var(--gray-500)">${p.orders.toLocaleString()} طلب</div>
-                  </div>
-                  <div style="font-weight:700;font-size:13px;color:var(--primary)">${formatPrice(p.price)} ${STORE.currency}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px">
-          <div class="card" style="cursor:pointer;text-align:center;padding:20px;border:2px dashed var(--gray-300)" onclick="Router.navigate('dashboard/products')">
-            <div style="font-size:28px;margin-bottom:8px">➕</div>
-            <div style="font-weight:600;font-size:13px">إضافة منتج</div>
-          </div>
-          <div class="card" style="cursor:pointer;text-align:center;padding:20px">
-            <div style="font-size:28px;margin-bottom:8px">📊</div>
-            <div style="font-weight:600;font-size:13px">تقارير المبيعات</div>
-          </div>
-          <div class="card" style="cursor:pointer;text-align:center;padding:20px">
-            <div style="font-size:28px;margin-bottom:8px">🏷️</div>
-            <div style="font-weight:600;font-size:13px">إنشاء عرض</div>
-          </div>
-          <div class="card" style="cursor:pointer;text-align:center;padding:20px">
-            <div style="font-size:28px;margin-bottom:8px">💬</div>
-            <div style="font-weight:600;font-size:13px">الرسائل</div>
-          </div>
-          <div class="card" style="cursor:pointer;text-align:center;padding:20px">
-            <div style="font-size:28px;margin-bottom:8px">📈</div>
-            <div style="font-weight:600;font-size:13px">التحليلات</div>
+            ${STORE.products.slice(0, 5).map((p, i) => `
+              <div style="display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) var(--sp-5);border-bottom:1px solid var(--clr-border-light);cursor:pointer;transition:background var(--t-fast)" onmouseover="this.style.background='var(--clr-surface-hover)'" onmouseout="this.style.background=''" onclick="Router.navigate('product/${p.id}')">
+                <div style="width:24px;height:24px;border-radius:var(--r-full);background:${i < 3 ? 'var(--clr-brand)' : 'var(--clr-border-strong)'};color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${i + 1}</div>
+                <div style="width:40px;height:40px;border-radius:var(--r-lg);background:var(--clr-bg-sunken);display:flex;align-items:center;justify-content:center;font-size:20px">${p.image}</div>
+                <div style="flex:1;min-width:0"><div style="font-size:var(--text-sm);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div><div style="font-size:11px;color:var(--clr-text-tertiary)">${p.orders.toLocaleString()} طلب</div></div>
+                <div style="font-weight:700;font-size:var(--text-sm);color:var(--clr-brand-dark)">${formatPrice(p.price)} ${STORE.currency}</div>
+              </div>
+            `).join('')}
           </div>
         </div>
       </div>
@@ -1477,111 +1390,61 @@ function renderDashboard() {
   `;
 }
 
-// --- Page: Merchant Products ---
+// --- Page: Dashboard Products ---
 function renderDashboardProducts() {
   const content = document.getElementById('app-content');
-
   content.innerHTML = `
     <div class="dashboard-layout">
       ${renderDashboardSidebar('products')}
-
       <div class="dashboard-content">
         <div class="dashboard-header">
           <div>
             <h2>إدارة المنتجات</h2>
-            <p style="color:var(--gray-500);font-size:14px">${STORE.merchantStats.totalProducts} منتج نشط</p>
+            <p style="color:var(--clr-text-tertiary);font-size:var(--text-sm)">${STORE.merchantStats.totalProducts} منتج نشط</p>
           </div>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:var(--sp-2)">
             <button class="btn btn-outline btn-sm">📥 استيراد</button>
             <button class="btn btn-primary btn-sm" onclick="showAddProductModal()">+ إضافة منتج جديد</button>
           </div>
         </div>
 
-        <!-- Filters -->
-        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-          <input type="text" placeholder="🔍 بحث في المنتجات..." style="flex:1;min-width:200px;padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
-          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
+        <div style="display:flex;gap:var(--sp-3);margin-bottom:var(--sp-5);flex-wrap:wrap">
+          <input type="text" placeholder="🔍 بحث في المنتجات..." style="flex:1;min-width:200px;padding:var(--sp-3) var(--sp-4);border:1px solid var(--clr-border);border-radius:var(--r-md);font-size:var(--text-sm)">
+          <select style="padding:var(--sp-3) var(--sp-4);border:1px solid var(--clr-border);border-radius:var(--r-md);font-size:var(--text-sm)">
             <option>جميع التصنيفات</option>
             ${STORE.categories.slice(0, 10).map(c => `<option>${c.name}</option>`).join('')}
           </select>
-          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
-            <option>جميع الحالات</option>
-            <option>نشط</option>
-            <option>غير نشط</option>
-            <option>نفذ من المخزون</option>
+          <select style="padding:var(--sp-3) var(--sp-4);border:1px solid var(--clr-border);border-radius:var(--r-md);font-size:var(--text-sm)">
+            <option>جميع الحالات</option><option>نشط</option><option>غير نشط</option><option>نفذ من المخزون</option>
           </select>
-          <button class="btn btn-primary btn-sm">🔍 بحث</button>
         </div>
 
-        <!-- Products Table -->
         <div class="dashboard-table">
           <div class="dashboard-table-header">
-            <div style="display:flex;gap:12px;align-items:center">
-              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-                <input type="checkbox" style="accent-color:var(--primary)"> تحديد الكل
-              </label>
-              <span style="color:var(--gray-400)">|</span>
-              <button class="btn btn-ghost btn-sm" style="color:var(--danger)">🗑️ حذف المحدد</button>
+            <div style="display:flex;gap:var(--sp-3);align-items:center">
+              <label style="display:flex;align-items:center;gap:var(--sp-2);font-size:var(--text-sm);cursor:pointer"><input type="checkbox" style="accent-color:var(--clr-brand)"> تحديد الكل</label>
+              <span style="color:var(--clr-text-tertiary)">|</span>
+              <button class="btn btn-ghost btn-sm" style="color:var(--clr-danger)">🗑️ حذف المحدد</button>
             </div>
-            <div style="font-size:13px;color:var(--gray-500)">
-              عرض 1-8 من ${STORE.merchantStats.totalProducts}
-            </div>
+            <div style="font-size:var(--text-sm);color:var(--clr-text-tertiary)">عرض 1-8 من ${STORE.merchantStats.totalProducts}</div>
           </div>
           <div class="table-wrapper">
             <table>
-              <thead>
-                <tr>
-                  <th style="width:40px"><input type="checkbox" style="accent-color:var(--primary)"></th>
-                  <th>المنتج</th>
-                  <th>التصنيف</th>
-                  <th>السعر</th>
-                  <th>المخزون</th>
-                  <th>المبيعات</th>
-                  <th>التقييم</th>
-                  <th>الحالة</th>
-                  <th>إجراءات</th>
-                </tr>
-              </thead>
+              <thead><tr><th style="width:40px"><input type="checkbox" style="accent-color:var(--clr-brand)"></th><th>المنتج</th><th>التصنيف</th><th>السعر</th><th>المخزون</th><th>المبيعات</th><th>التقييم</th><th>الحالة</th><th>إجراءات</th></tr></thead>
               <tbody>
                 ${STORE.products.slice(0, 8).map(p => {
                   const stock = Math.floor(Math.random() * 500) + 50;
-                  return `
-                    <tr>
-                      <td><input type="checkbox" style="accent-color:var(--primary)"></td>
-                      <td>
-                        <div style="display:flex;align-items:center;gap:12px">
-                          <div style="width:48px;height:48px;border-radius:var(--radius-md);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:24px">${p.image}</div>
-                          <div>
-                            <div style="font-weight:600;font-size:13px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
-                            <div style="font-size:11px;color:var(--gray-500)">SKU: ${p.id} • ${p.store}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td><span class="badge badge-info">${p.subCategory}</span></td>
-                      <td>
-                        <div style="font-weight:700">${formatPrice(p.price)} ${STORE.currency}</div>
-                        <div style="font-size:11px;color:var(--gray-500);text-decoration:line-through">${formatPrice(p.originalPrice)}</div>
-                      </td>
-                      <td>
-                        <span class="badge ${stock > 100 ? 'badge-success' : stock > 20 ? 'badge-warning' : 'badge-danger'}">${stock}</span>
-                      </td>
-                      <td style="font-weight:600">${p.orders.toLocaleString()}</td>
-                      <td>
-                        <div style="display:flex;align-items:center;gap:4px">
-                          <span style="color:var(--accent-gold)">★</span>
-                          <span style="font-weight:600">${p.rating}</span>
-                        </div>
-                      </td>
-                      <td><span class="status-badge delivered">نشط</span></td>
-                      <td>
-                        <div style="display:flex;gap:4px">
-                          <button class="btn btn-ghost btn-sm" title="تعديل" onclick="showEditProductModal(${p.id})">✏️</button>
-                          <button class="btn btn-ghost btn-sm" title="عرض" onclick="Router.navigate('product/${p.id}')">👁️</button>
-                          <button class="btn btn-ghost btn-sm" style="color:var(--danger)" title="حذف" onclick="deleteProduct(${p.id})">🗑️</button>
-                        </div>
-                      </td>
-                    </tr>
-                  `;
+                  return `<tr>
+                    <td><input type="checkbox" style="accent-color:var(--clr-brand)"></td>
+                    <td><div style="display:flex;align-items:center;gap:var(--sp-3)"><div style="width:48px;height:48px;border-radius:var(--r-lg);background:var(--clr-bg-sunken);display:flex;align-items:center;justify-content:center;font-size:24px">${p.image}</div><div><div style="font-weight:600;font-size:var(--text-sm);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div><div style="font-size:11px;color:var(--clr-text-tertiary)">SKU: ${p.id} • ${p.store}</div></div></div></td>
+                    <td><span class="badge badge-info">${p.subCategory}</span></td>
+                    <td><div style="font-weight:700">${formatPrice(p.price)} ${STORE.currency}</div><div style="font-size:11px;color:var(--clr-text-tertiary);text-decoration:line-through">${formatPrice(p.originalPrice)}</div></td>
+                    <td><span class="badge ${stock > 100 ? 'badge-success' : stock > 20 ? 'badge-warning' : 'badge-danger'}">${stock}</span></td>
+                    <td style="font-weight:600">${p.orders.toLocaleString()}</td>
+                    <td><div style="display:flex;align-items:center;gap:var(--sp-1)"><span style="color:var(--clr-warning)">★</span><span style="font-weight:600">${p.rating}</span></div></td>
+                    <td><span class="status-badge delivered">نشط</span></td>
+                    <td><div style="display:flex;gap:var(--sp-1)"><button class="btn btn-ghost btn-sm" title="تعديل">✏️</button><button class="btn btn-ghost btn-sm" title="عرض" onclick="Router.navigate('product/${p.id}')">👁️</button><button class="btn btn-ghost btn-sm" style="color:var(--clr-danger)" title="حذف">🗑️</button></div></td>
+                  </tr>`;
                 }).join('')}
               </tbody>
             </table>
@@ -1612,46 +1475,20 @@ function showAddProductModal() {
         <button style="background:none;border:none;font-size:24px;cursor:pointer" onclick="this.closest('.modal-overlay').remove()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-          <label>اسم المنتج</label>
-          <input type="text" placeholder="أدخل اسم المنتج" style="width:100%">
+        <div class="form-group"><label>اسم المنتج</label><input type="text" placeholder="أدخل اسم المنتج" style="width:100%"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4)">
+          <div class="form-group"><label>التصنيف</label><select style="width:100%">${STORE.categories.slice(0, 10).map(c => `<option>${c.name}</option>`).join('')}</select></div>
+          <div class="form-group"><label>القسم الفرعي</label><input type="text" placeholder="أدخل القسم الفرعي" style="width:100%"></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="form-group">
-            <label>التصنيف</label>
-            <select style="width:100%">
-              ${STORE.categories.slice(0, 10).map(c => `<option>${c.name}</option>`).join('')}
-            </select>
-          </div>
-          <div class="form-group">
-            <label>القسم الفرعي</label>
-            <input type="text" placeholder="أدخل القسم الفرعي" style="width:100%">
-          </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4)">
+          <div class="form-group"><label>السعر</label><input type="number" placeholder="0" style="width:100%"></div>
+          <div class="form-group"><label>السعر الأصلي</label><input type="number" placeholder="0" style="width:100%"></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="form-group">
-            <label>السعر</label>
-            <input type="number" placeholder="0" style="width:100%">
-          </div>
-          <div class="form-group">
-            <label>السعر الأصلي</label>
-            <input type="number" placeholder="0" style="width:100%">
-          </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4)">
+          <div class="form-group"><label>الحد الأدنى للطلب</label><input type="number" placeholder="1" style="width:100%"></div>
+          <div class="form-group"><label>المخزون</label><input type="number" placeholder="0" style="width:100%"></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="form-group">
-            <label>الحد الأدنى للطلب</label>
-            <input type="number" placeholder="1" style="width:100%">
-          </div>
-          <div class="form-group">
-            <label>المخزون</label>
-            <input type="number" placeholder="0" style="width:100%">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>الوصف</label>
-          <textarea rows="3" placeholder="وصف المنتج..." style="width:100%"></textarea>
-        </div>
+        <div class="form-group"><label>الوصف</label><textarea rows="3" placeholder="وصف المنتج..." style="width:100%"></textarea></div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove();showToast('تم إضافة المنتج بنجاح')">حفظ المنتج</button>
@@ -1662,19 +1499,7 @@ function showAddProductModal() {
   document.body.appendChild(modal);
 }
 
-function showEditProductModal(productId) {
-  const product = STORE.products.find(p => p.id === productId);
-  if (!product) return;
-  showToast('تم فتح نافذة تعديل المنتج: ' + product.name.substring(0, 30));
-}
-
-function deleteProduct(productId) {
-  if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-    showToast('تم حذف المنتج بنجاح', 'warning');
-  }
-}
-
-// --- Page: Merchant Orders ---
+// --- Page: Dashboard Orders ---
 function renderDashboardOrders() {
   const content = document.getElementById('app-content');
   const stats = STORE.merchantStats;
@@ -1682,173 +1507,79 @@ function renderDashboardOrders() {
   content.innerHTML = `
     <div class="dashboard-layout">
       ${renderDashboardSidebar('orders')}
-
       <div class="dashboard-content">
         <div class="dashboard-header">
           <div>
             <h2>إدارة الطلبات</h2>
-            <p style="color:var(--gray-500);font-size:14px">${stats.totalOrders} إجمالي الطلبات • آخر تحديث: اليوم 10:45 ص</p>
+            <p style="color:var(--clr-text-tertiary);font-size:var(--text-sm)">${stats.totalOrders} إجمالي الطلبات</p>
           </div>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:var(--sp-2)">
             <button class="btn btn-outline btn-sm">📥 تصدير Excel</button>
             <button class="btn btn-outline btn-sm">🖨️ طباعة</button>
           </div>
         </div>
 
         <!-- Order Stats -->
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--gray-200);text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:14px;color:var(--gray-500)">الكل</div>
-            <div style="font-size:28px;font-weight:900">${stats.totalOrders}</div>
-            <div style="font-size:11px;color:var(--gray-400)">إجمالي الطلبات</div>
-          </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:2px solid #F57F17;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:14px;color:#F57F17">⏳ في الانتظار</div>
-            <div style="font-size:28px;font-weight:900;color:#F57F17">${stats.pendingOrders}</div>
-            <div style="font-size:11px;color:var(--gray-400)">يحتاج مراجعة</div>
-          </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:2px solid var(--info);text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:14px;color:var(--info)">📦 قيد التجهيز</div>
-            <div style="font-size:28px;font-weight:900;color:var(--info)">${stats.processingOrders}</div>
-            <div style="font-size:11px;color:var(--gray-400)">جاري التحضير</div>
-          </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:2px solid var(--success);text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:14px;color:var(--success)">🚚 تم الشحن</div>
-            <div style="font-size:28px;font-weight:900;color:var(--success)">${stats.shippedOrders}</div>
-            <div style="font-size:11px;color:var(--gray-400)">في الطريق</div>
-          </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--gray-200);text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:14px;color:var(--gray-500)">✅ تم التوصيل</div>
-            <div style="font-size:28px;font-weight:900">890</div>
-            <div style="font-size:11px;color:var(--gray-400)">مكتملة</div>
-          </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp-3);margin-bottom:var(--sp-6)">
+          <div style="background:var(--clr-bg-elevated);border-radius:var(--r-xl);padding:var(--sp-4);border:1px solid var(--clr-border-light);text-align:center;cursor:pointer"><div style="font-size:var(--text-sm);color:var(--clr-text-tertiary)">الكل</div><div style="font-size:var(--text-2xl);font-weight:900">${stats.totalOrders}</div></div>
+          <div style="background:var(--clr-bg-elevated);border-radius:var(--r-xl);padding:var(--sp-4);border:2px solid var(--clr-warning);text-align:center;cursor:pointer"><div style="font-size:var(--text-sm);color:var(--clr-warning)">⏳ في الانتظار</div><div style="font-size:var(--text-2xl);font-weight:900;color:var(--clr-warning)">${stats.pendingOrders}</div></div>
+          <div style="background:var(--clr-bg-elevated);border-radius:var(--r-xl);padding:var(--sp-4);border:2px solid var(--clr-info);text-align:center;cursor:pointer"><div style="font-size:var(--text-sm);color:var(--clr-info)">📦 قيد التجهيز</div><div style="font-size:var(--text-2xl);font-weight:900;color:var(--clr-info)">${stats.processingOrders}</div></div>
+          <div style="background:var(--clr-bg-elevated);border-radius:var(--r-xl);padding:var(--sp-4);border:2px solid var(--clr-success);text-align:center;cursor:pointer"><div style="font-size:var(--text-sm);color:var(--clr-success)">🚚 تم الشحن</div><div style="font-size:var(--text-2xl);font-weight:900;color:var(--clr-success)">${stats.shippedOrders}</div></div>
+          <div style="background:var(--clr-bg-elevated);border-radius:var(--r-xl);padding:var(--sp-4);border:1px solid var(--clr-border-light);text-align:center;cursor:pointer"><div style="font-size:var(--text-sm);color:var(--clr-text-tertiary)">✅ تم التوصيل</div><div style="font-size:var(--text-2xl);font-weight:900">890</div></div>
         </div>
 
-        <!-- Filters & Search -->
-        <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--gray-200);margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-          <input type="text" placeholder="🔍 بحث برقم الطلب، اسم العميل، أو رقم الهاتف..." style="flex:1;min-width:250px;padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
-          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
-            <option>جميع الحالات</option>
-            <option>في الانتظار</option>
-            <option>قيد التجهيز</option>
-            <option>تم الشحن</option>
-            <option>تم التوصيل</option>
-            <option>ملغي</option>
-          </select>
-          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
-            <option>جميع التواريخ</option>
-            <option>اليوم</option>
-            <option>آخر 7 أيام</option>
-            <option>آخر 30 يوم</option>
-            <option>هذا الشهر</option>
-          </select>
-          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
-            <option>طريقة الدفع</option>
-            <option>الدفع عند الاستلام</option>
-            <option>محفظة إلكترونية</option>
-            <option>تحويل بنكي</option>
-          </select>
+        <div style="background:var(--clr-bg-elevated);border-radius:var(--r-xl);padding:var(--sp-4);border:1px solid var(--clr-border-light);margin-bottom:var(--sp-5);display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center">
+          <input type="text" placeholder="🔍 بحث برقم الطلب، اسم العميل..." style="flex:1;min-width:250px;padding:var(--sp-3) var(--sp-4);border:1px solid var(--clr-border);border-radius:var(--r-md);font-size:var(--text-sm)">
+          <select style="padding:var(--sp-3) var(--sp-4);border:1px solid var(--clr-border);border-radius:var(--r-md);font-size:var(--text-sm)"><option>جميع الحالات</option><option>في الانتظار</option><option>قيد التجهيز</option><option>تم الشحن</option><option>تم التوصيل</option></select>
+          <select style="padding:var(--sp-3) var(--sp-4);border:1px solid var(--clr-border);border-radius:var(--r-md);font-size:var(--text-sm)"><option>جميع التواريخ</option><option>اليوم</option><option>آخر 7 أيام</option><option>آخر 30 يوم</option></select>
           <button class="btn btn-primary btn-sm">🔍 بحث</button>
         </div>
 
-        <!-- Orders Table -->
         <div class="dashboard-table">
           <div class="dashboard-table-header">
-            <div style="display:flex;gap:12px;align-items:center">
-              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-                <input type="checkbox" style="accent-color:var(--primary)"> تحديد الكل
-              </label>
-              <span style="color:var(--gray-400)">|</span>
-              <button class="btn btn-ghost btn-sm" style="color:var(--success)">✅ قبول المحدد</button>
-              <button class="btn btn-ghost btn-sm" style="color:var(--danger)">❌ إلغاء المحدد</button>
+            <div style="display:flex;gap:var(--sp-3);align-items:center">
+              <label style="display:flex;align-items:center;gap:var(--sp-2);font-size:var(--text-sm);cursor:pointer"><input type="checkbox" style="accent-color:var(--clr-brand)"> تحديد الكل</label>
+              <span style="color:var(--clr-text-tertiary)">|</span>
+              <button class="btn btn-ghost btn-sm" style="color:var(--clr-success)">✅ قبول المحدد</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--clr-danger)">❌ إلغاء المحدد</button>
             </div>
-            <div style="font-size:13px;color:var(--gray-500)">
-              عرض 1-${Math.min(10, stats.totalOrders)} من ${stats.totalOrders}
-            </div>
+            <div style="font-size:var(--text-sm);color:var(--clr-text-tertiary)">عرض 1-${Math.min(10, stats.totalOrders)} من ${stats.totalOrders}</div>
           </div>
           <div class="table-wrapper">
             <table>
-              <thead>
-                <tr>
-                  <th style="width:40px"><input type="checkbox" style="accent-color:var(--primary)"></th>
-                  <th>رقم الطلب</th>
-                  <th>العميل</th>
-                  <th>المنتجات</th>
-                  <th>المبلغ</th>
-                  <th>طريقة الدفع</th>
-                  <th>الحالة</th>
-                  <th>التاريخ</th>
-                  <th>إجراءات</th>
-                </tr>
-              </thead>
+              <thead><tr><th style="width:40px"><input type="checkbox" style="accent-color:var(--clr-brand)"></th><th>رقم الطلب</th><th>العميل</th><th>المنتجات</th><th>المبلغ</th><th>طريقة الدفع</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
               <tbody>
                 ${STORE.orders.map(order => {
-                  const statusMap = {
-                    pending: { label: 'في الانتظار', class: 'pending', icon: '⏳' },
-                    processing: { label: 'قيد التجهيز', class: 'processing', icon: '📦' },
-                    shipped: { label: 'تم الشحن', class: 'shipped', icon: '🚚' },
-                    delivered: { label: 'تم التوصيل', class: 'delivered', icon: '✅' },
-                    cancelled: { label: 'ملغي', class: 'cancelled', icon: '❌' },
-                  };
-                  const status = statusMap[order.status];
+                  const sm = { pending: { label: 'في الانتظار', class: 'pending', icon: '⏳' }, processing: { label: 'قيد التجهيز', class: 'processing', icon: '📦' }, shipped: { label: 'تم الشحن', class: 'shipped', icon: '🚚' }, delivered: { label: 'تم التوصيل', class: 'delivered', icon: '✅' }, cancelled: { label: 'ملغي', class: 'cancelled', icon: '❌' } };
+                  const status = sm[order.status];
                   const payments = ['الدفع عند الاستلام', 'محفظة إلكترونية', 'تحويل بنكي'];
                   const customers = ['أحمد محمد', 'سارة علي', 'خالد حسن', 'فاطمة أحمد'];
                   const phones = ['777123456', '733987654', '712345678', '788765432'];
                   const cities = ['صنعاء', 'عدن', 'تعز', 'الحديدة'];
                   const i = STORE.orders.indexOf(order);
-                  return `
-                    <tr>
-                      <td><input type="checkbox" style="accent-color:var(--primary)"></td>
-                      <td>
-                        <div style="font-weight:700;color:var(--primary)">${order.id}</div>
-                      </td>
-                      <td>
-                        <div style="display:flex;align-items:center;gap:10px">
-                          <div style="width:36px;height:36px;border-radius:50%;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--primary)">${customers[i].charAt(0)}</div>
-                          <div>
-                            <div style="font-weight:600;font-size:13px">${customers[i]}</div>
-                            <div style="font-size:11px;color:var(--gray-500)">📱 ${phones[i]} • 📍 ${cities[i]}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div style="display:flex;align-items:center;gap:6px">
-                          <div style="font-weight:600">${order.items}</div>
-                          <div style="font-size:11px;color:var(--gray-500)">منتج</div>
-                        </div>
-                      </td>
-                      <td>
-                        <div style="font-weight:800;font-size:14px;color:var(--accent)">${formatPrice(order.total)} ${STORE.currency}</div>
-                      </td>
-                      <td>
-                        <div style="font-size:12px;display:flex;align-items:center;gap:4px">
-                          ${payments[i % 3] === 'الدفع عند الاستلام' ? '💵' : payments[i % 3] === 'محفظة إلكترونية' ? '📱' : '🏦'}
-                          ${payments[i % 3]}
-                        </div>
-                      </td>
-                      <td><span class="status-badge ${status.class}">${status.icon} ${status.label}</span></td>
-                      <td>
-                        <div style="font-size:13px">${order.date}</div>
-                        <div style="font-size:11px;color:var(--gray-500)">${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} ص</div>
-                      </td>
-                      <td>
-                        <div style="display:flex;gap:4px;flex-wrap:wrap">
-                          <button class="btn btn-ghost btn-sm" title="عرض التفاصيل" onclick="showOrderDetail('${order.id}')">👁️</button>
-                          ${order.status === 'pending' ? '<button class="btn btn-success btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'processing\')">✅ قبول</button>' : ''}
-                          ${order.status === 'processing' ? '<button class="btn btn-primary btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'shipped\')">🚚 شحن</button>' : ''}
-                          ${order.status === 'shipped' ? '<button class="btn btn-success btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'delivered\')">✅ توصيل</button>' : ''}
-                          ${order.status === 'pending' ? '<button class="btn btn-danger btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'cancelled\')">❌</button>' : ''}
-                        </div>
-                      </td>
-                    </tr>
-                  `;
+                  return `<tr>
+                    <td><input type="checkbox" style="accent-color:var(--clr-brand)"></td>
+                    <td><div style="font-weight:700;color:var(--clr-brand-dark)">${order.id}</div></td>
+                    <td><div style="display:flex;align-items:center;gap:var(--sp-3)"><div style="width:36px;height:36px;border-radius:var(--r-full);background:var(--clr-brand-glow);display:flex;align-items:center;justify-content:center;font-size:var(--text-sm);font-weight:700;color:var(--clr-brand-dark)">${customers[i].charAt(0)}</div><div><div style="font-weight:600;font-size:var(--text-sm)">${customers[i]}</div><div style="font-size:11px;color:var(--clr-text-tertiary)">📱 ${phones[i]} • 📍 ${cities[i]}</div></div></div></td>
+                    <td><div style="display:flex;align-items:center;gap:var(--sp-2)"><div style="font-weight:600">${order.items}</div><div style="font-size:11px;color:var(--clr-text-tertiary)">منتج</div></div></td>
+                    <td><div style="font-weight:800;font-size:var(--text-sm);color:var(--clr-accent)">${formatPrice(order.total)} ${STORE.currency}</div></td>
+                    <td><div style="font-size:var(--text-xs);display:flex;align-items:center;gap:var(--sp-1)">${payments[i % 3] === 'الدفع عند الاستلام' ? '💵' : payments[i % 3] === 'محفظة إلكترونية' ? '📱' : '🏦'} ${payments[i % 3]}</div></td>
+                    <td><span class="status-badge ${status.class}">${status.icon} ${status.label}</span></td>
+                    <td><div style="font-size:var(--text-sm)">${order.date}</div></td>
+                    <td><div style="display:flex;gap:var(--sp-1);flex-wrap:wrap">
+                      <button class="btn btn-ghost btn-sm" onclick="showOrderDetail('${order.id}')">👁️</button>
+                      ${order.status === 'pending' ? '<button class="btn btn-success btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'processing\')">✅</button>' : ''}
+                      ${order.status === 'processing' ? '<button class="btn btn-primary btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'shipped\')">🚚</button>' : ''}
+                      ${order.status === 'shipped' ? '<button class="btn btn-success btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'delivered\')">✅</button>' : ''}
+                      ${order.status === 'pending' ? '<button class="btn btn-danger btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'cancelled\')">❌</button>' : ''}
+                    </div></td>
+                  </tr>`;
                 }).join('')}
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- Pagination -->
         <div class="pagination">
           <button class="page-btn">←</button>
           <button class="page-btn active">1</button>
@@ -1866,16 +1597,9 @@ function renderDashboardOrders() {
 function showOrderDetail(orderId) {
   const order = STORE.orders.find(o => o.id === orderId);
   if (!order) return;
+  const sm = { pending: { label: 'في الانتظار', class: 'pending', icon: '⏳' }, processing: { label: 'قيد التجهيز', class: 'processing', icon: '📦' }, shipped: { label: 'تم الشحن', class: 'shipped', icon: '🚚' }, delivered: { label: 'تم التوصيل', class: 'delivered', icon: '✅' } };
+  const status = sm[order.status];
 
-  const statusMap = {
-    pending: { label: 'في الانتظار', class: 'pending', icon: '⏳' },
-    processing: { label: 'قيد التجهيز', class: 'processing', icon: '📦' },
-    shipped: { label: 'تم الشحن', class: 'shipped', icon: '🚚' },
-    delivered: { label: 'تم التوصيل', class: 'delivered', icon: '✅' },
-  };
-  const status = statusMap[order.status];
-
-  // Create modal
   const modal = document.createElement('div');
   modal.className = 'modal-overlay active';
   modal.innerHTML = `
@@ -1885,51 +1609,24 @@ function showOrderDetail(orderId) {
         <button style="background:none;border:none;font-size:24px;cursor:pointer" onclick="this.closest('.modal-overlay').remove()">✕</button>
       </div>
       <div class="modal-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-          <div>
-            <div style="font-size:13px;color:var(--gray-500)">العميل</div>
-            <div style="font-weight:600">أحمد محمد</div>
-            <div style="font-size:12px;color:var(--gray-500)">📱 777123456</div>
-          </div>
-          <div>
-            <div style="font-size:13px;color:var(--gray-500)">العنوان</div>
-            <div style="font-weight:600">صنعاء، شارع الستين</div>
-          </div>
-          <div>
-            <div style="font-size:13px;color:var(--gray-500)">طريقة الدفع</div>
-            <div style="font-weight:600">💵 الدفع عند الاستلام</div>
-          </div>
-          <div>
-            <div style="font-size:13px;color:var(--gray-500)">الحالة</div>
-            <span class="status-badge ${status.class}">${status.icon} ${status.label}</span>
-          </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4);margin-bottom:var(--sp-5)">
+          <div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">العميل</div><div style="font-weight:600">أحمد محمد</div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">📱 777123456</div></div>
+          <div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">العنوان</div><div style="font-weight:600">صنعاء، شارع الستين</div></div>
+          <div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">طريقة الدفع</div><div style="font-weight:600">💵 الدفع عند الاستلام</div></div>
+          <div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">الحالة</div><span class="status-badge ${status.class}">${status.icon} ${status.label}</span></div>
         </div>
-
-        <h4 style="font-weight:700;margin-bottom:12px">📦 المنتجات</h4>
+        <h4 style="font-weight:700;margin-bottom:var(--sp-3)">📦 المنتجات</h4>
         ${STORE.products.slice(0, order.items).map(p => `
-          <div style="display:flex;gap:12px;padding:12px;background:var(--gray-50);border-radius:var(--radius-md);margin-bottom:8px">
-            <div style="width:48px;height:48px;border-radius:var(--radius-md);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:24px">${p.image}</div>
-            <div style="flex:1">
-              <div style="font-weight:500;font-size:13px">${p.name.substring(0, 50)}...</div>
-              <div style="font-size:12px;color:var(--gray-500)">الكمية: ${p.moq}</div>
-            </div>
+          <div style="display:flex;gap:var(--sp-3);padding:var(--sp-3);background:var(--clr-bg-sunken);border-radius:var(--r-lg);margin-bottom:var(--sp-2)">
+            <div style="width:48px;height:48px;border-radius:var(--r-lg);background:var(--clr-border-light);display:flex;align-items:center;justify-content:center;font-size:24px">${p.image}</div>
+            <div style="flex:1"><div style="font-weight:500;font-size:var(--text-sm)">${p.name.substring(0, 50)}...</div><div style="font-size:var(--text-xs);color:var(--clr-text-tertiary)">الكمية: ${p.moq}</div></div>
             <div style="font-weight:700">${formatPrice(p.price * p.moq)} ${STORE.currency}</div>
           </div>
         `).join('')}
-
-        <div style="border-top:2px solid var(--gray-200);margin-top:16px;padding-top:16px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px">
-            <span>المجموع الفرعي</span>
-            <span>${formatPrice(order.total - 3000)} ${STORE.currency}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px">
-            <span>الشحن</span>
-            <span style="color:var(--success)">مجاني</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;color:var(--accent);border-top:1px solid var(--gray-200);padding-top:8px">
-            <span>الإجمالي</span>
-            <span>${formatPrice(order.total)} ${STORE.currency}</span>
-          </div>
+        <div style="border-top:2px solid var(--clr-border);margin-top:var(--sp-4);padding-top:var(--sp-4)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:var(--sp-2);font-size:var(--text-sm)"><span>المجموع الفرعي</span><span>${formatPrice(order.total - 3000)} ${STORE.currency}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:var(--sp-2);font-size:var(--text-sm)"><span>الشحن</span><span style="color:var(--clr-success)">مجاني</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-xl);font-weight:800;color:var(--clr-accent);border-top:1px solid var(--clr-border);padding-top:var(--sp-2)"><span>الإجمالي</span><span>${formatPrice(order.total)} ${STORE.currency}</span></div>
         </div>
       </div>
       <div class="modal-footer">
@@ -1946,13 +1643,13 @@ function updateOrderStatus(orderId, newStatus) {
   const order = STORE.orders.find(o => o.id === orderId);
   if (order) {
     order.status = newStatus;
-    const statusLabels = { processing: 'تم قبول الطلب', shipped: 'تم شحن الطلب', delivered: 'تم توصيل الطلب', cancelled: 'تم إلغاء الطلب' };
-    showToast(statusLabels[newStatus] || 'تم تحديث الحالة', 'success');
+    const labels = { processing: 'تم قبول الطلب', shipped: 'تم شحن الطلب', delivered: 'تم توصيل الطلب', cancelled: 'تم إلغاء الطلب' };
+    showToast(labels[newStatus] || 'تم تحديث الحالة', 'success');
     renderDashboardOrders();
   }
 }
 
-// --- Page: Search Results ---
+// --- Page: Search ---
 function renderSearch(query) {
   const content = document.getElementById('app-content');
   const results = STORE.products.filter(p =>
@@ -1962,14 +1659,14 @@ function renderSearch(query) {
   content.innerHTML = `
     <section class="section">
       <div class="container">
-        <div class="product-breadcrumb">
+        <div class="breadcrumb">
           <a onclick="Router.navigate('home')">الرئيسية</a>
           <span class="sep">←</span>
-          <span>نتائج البحث: "${query}"</span>
+          <span class="current">نتائج البحث: "${query}"</span>
         </div>
-        <h2 class="section-title" style="margin-bottom:24px">🔍 نتائج البحث عن "${query}"</h2>
-        <p style="color:var(--gray-500);margin-bottom:20px">${results.length} نتيجة</p>
-        <div class="products-grid">
+        <h2 class="section-title" style="margin-bottom:var(--sp-6)">🔍 نتائج البحث عن "${query}"</h2>
+        <p style="color:var(--clr-text-tertiary);margin-bottom:var(--sp-6)">${results.length} نتيجة</p>
+        <div class="products-grid stagger-in">
           ${results.length > 0
             ? results.map(renderProductCard).join('')
             : '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><h3>لا توجد نتائج</h3><p>جرب كلمات بحث مختلفة</p></div>'
@@ -1982,7 +1679,8 @@ function renderSearch(query) {
 
 // --- Init App ---
 function initApp() {
-  // Register routes
+  buildCategoriesMegaMenu();
+
   Router.register('home', renderHome);
   Router.register('categories', renderCategories);
   Router.register('category', renderCategory);
@@ -1997,7 +1695,6 @@ function initApp() {
   Router.register('dashboard/orders', renderDashboardOrders);
   Router.register('search', renderSearch);
 
-  // Search handler
   const searchInput = document.getElementById('search-input');
   const searchBtn = document.getElementById('search-btn');
   if (searchBtn && searchInput) {
@@ -2013,12 +1710,8 @@ function initApp() {
     });
   }
 
-  // Init router
   Router.init();
-
-  // Update cart badge
   updateCartBadge();
 }
 
-// Start
 document.addEventListener('DOMContentLoaded', initApp);
