@@ -25,6 +25,16 @@ function showToast(msg, type = 'success') {
 function updateCartBadge() {
   const badge = document.querySelector('#cart-badge');
   if (badge) badge.textContent = STORE.cart.length;
+  const bnavBadge = document.querySelector('#bnav-cart-badge');
+  if (bnavBadge) bnavBadge.textContent = STORE.cart.length;
+}
+
+// --- Update Bottom Nav Active State ---
+function updateBottomNav(page) {
+  document.querySelectorAll('.bottom-nav-item').forEach(item => {
+    const itemPage = item.dataset.page;
+    item.classList.toggle('active', itemPage === page);
+  });
 }
 
 // --- Build Categories Mega Menu ---
@@ -44,33 +54,36 @@ function buildCategoriesMegaMenu() {
   `;
 }
 
-// --- Render Product Card ---
+// --- Render Product Card (Alibaba-style) ---
 function renderProductCard(product) {
   const discount = Math.round((1 - product.price / product.originalPrice) * 100);
+  const isVerified = product.storeBadge === 'متجر ذهبي' || product.storeBadge === 'بائع معتمد';
   return `
     <div class="product-card" onclick="Router.navigate('product/${product.id}')">
       <div class="product-image">
         <div class="img-inner" style="background:var(--clr-bg-sunken)">${product.image}</div>
         ${discount > 0 ? `<div class="discount-tag">-${discount}%</div>` : ''}
-        <button class="wishlist-btn" onclick="event.stopPropagation();this.classList.toggle('active')">
-          ${this.classList?.contains('active') ? '♥' : '♡'}
-        </button>
+        <button class="wishlist-btn" onclick="event.stopPropagation();this.classList.toggle('active')">♡</button>
       </div>
       <div class="product-info">
-        <div class="product-title">${product.name}</div>
         <div class="product-price">
           ${formatPrice(product.price)}
           <span class="currency">${STORE.currency}</span>
         </div>
         <div class="price-original">${formatPrice(product.originalPrice)} ${STORE.currency}</div>
+        <div class="product-title">${product.name}</div>
+        <div class="moq-badge">الحد الأدنى: ${product.moq} قطع</div>
         <div class="product-meta">
           <span class="stars">${generateStars(product.rating)}</span>
           <span>${product.rating}</span>
-          <span>·</span>
+          <span>|</span>
           <span class="orders">${product.orders.toLocaleString()} طلب</span>
         </div>
-        <div class="moq-badge">الحد الأدنى: ${product.moq} قطع</div>
-        <div class="store-badge">🏪 ${product.store}</div>
+        <div class="store-badge">
+          <span class="store-verified">${isVerified ? '✅' : '🏪'}</span>
+          <span>${product.store}</span>
+          ${isVerified ? '<span class="badge badge-brand" style="font-size:9px;padding:1px 5px">موثق</span>' : ''}
+        </div>
       </div>
     </div>
   `;

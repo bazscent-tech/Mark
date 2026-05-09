@@ -160,6 +160,33 @@
     </div>
   </footer>
 
+  <!-- Bottom Navigation (Mobile) -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <div class="bottom-nav-item active" data-page="home" onclick="Router.navigate('home')">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">الرئيسية</span>
+    </div>
+    <div class="bottom-nav-item" data-page="categories" onclick="Router.navigate('categories')">
+      <span class="bnav-icon">📂</span>
+      <span class="bnav-label">التصنيفات</span>
+    </div>
+    <div class="bottom-nav-item" data-page="orders" onclick="Router.navigate('orders')">
+      <span class="bnav-icon">📦</span>
+      <span class="bnav-label">طلباتي</span>
+    </div>
+    <div class="bottom-nav-item" data-page="cart" onclick="Router.navigate('cart')">
+      <span class="bnav-icon">
+        🛒
+        <span class="bnav-badge" id="bnav-cart-badge">0</span>
+      </span>
+      <span class="bnav-label">السلة</span>
+    </div>
+    <div class="bottom-nav-item" data-page="account" onclick="Router.navigate('login')">
+      <span class="bnav-icon">👤</span>
+      <span class="bnav-label">حسابي</span>
+    </div>
+  </nav>
+
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
 

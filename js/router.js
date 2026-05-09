@@ -26,6 +26,7 @@ const Router = {
       STORE.currentPage = page;
       this.routes[page](...params);
       this.updateNav();
+      if (typeof updateBottomNav === 'function') updateBottomNav(page);
       window.scrollTo(0, 0);
     }
   },
