@@ -59,30 +59,79 @@ function renderHome() {
   const flashProducts = STORE.products.slice(0, 4);
   const popularProducts = STORE.products.slice(0, 8);
   const newProducts = STORE.products.slice(4, 12);
+  const topCategories = STORE.categories.slice(0, 12);
 
   content.innerHTML = `
-    <!-- Hero -->
+    <!-- Promo Banner -->
+    <div style="background:linear-gradient(90deg,#FF6600,#FF4444);color:white;padding:8px 0;text-align:center;font-size:13px;font-weight:600">
+      <div class="container" style="display:flex;align-items:center;justify-content:center;gap:24px">
+        <span>🔥 عروض نهاية الأسبوع — خصومات تصل إلى 60%</span>
+        <span>|</span>
+        <span>🚚 شحن مجاني على الطلبات فوق 50,000 ${STORE.currency}</span>
+        <span>|</span>
+        <span>⏰ ينتهي خلال: <span id="promo-timer" style="font-weight:800">23:59:48</span></span>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
     <section class="hero-section">
       <div class="container">
         <div class="hero-grid">
-          <div class="hero-banner">
+          <div class="hero-banner" style="background:linear-gradient(135deg,#FF6600 0%,#FF8533 40%,#FFB366 100%)">
             <div class="hero-content">
-              <h1>🏪 سوق الجمله اليمني</h1>
-              <p>أكبر منصة تجارية بالجملة في اليمن — آلاف المنتجات بأسعار الجملة مع ضمان الجودة وتوصيل سريع لجميع المحافظات</p>
-              <button class="btn btn-lg" style="background:white;color:var(--primary);font-weight:800" onclick="Router.navigate('categories')">
-                تصفح المنتجات ←
-              </button>
+              <div style="display:inline-block;background:rgba(255,255,255,0.2);padding:6px 16px;border-radius:20px;font-size:13px;margin-bottom:12px">🇾🇪 سوق الجمله اليمني</div>
+              <h1 style="font-size:36px;line-height:1.3;margin-bottom:16px">أكبر منصة تجارية<br>بالجملة في اليمن</h1>
+              <p style="font-size:16px;opacity:0.9;margin-bottom:24px;line-height:1.7">آلاف المنتجات بأسعار الجملة مع ضمان الجودة<br>وتوصيل سريع لجميع المحافظات اليمنية</p>
+              <div style="display:flex;gap:12px">
+                <button class="btn btn-lg" style="background:white;color:var(--primary);font-weight:800;padding:14px 32px" onclick="Router.navigate('categories')">
+                  تصفح المنتجات ←
+                </button>
+                <button class="btn btn-lg" style="background:rgba(255,255,255,0.2);color:white;border:2px solid white;padding:14px 32px" onclick="Router.navigate('register')">
+                  سجّل كبائع
+                </button>
+              </div>
+              <div style="display:flex;gap:32px;margin-top:24px;font-size:13px;opacity:0.9">
+                <span>✅ +10,000 منتج</span>
+                <span>✅ +500 تاجر</span>
+                <span>✅ +20 محافظة</span>
+              </div>
             </div>
           </div>
           <div class="hero-side">
-            <div class="hero-side-card">
-              <h3>🔥 عروض اليوم</h3>
-              <p>خصومات تصل إلى 60% على آلاف المنتجات</p>
+            <div class="hero-side-card" style="background:linear-gradient(135deg,#0984E3,#74B9FF)" onclick="Router.navigate('categories')">
+              <div style="font-size:32px;margin-bottom:8px">🔥</div>
+              <h3>عروض اليوم</h3>
+              <p>خصومات تصل إلى 60%</p>
             </div>
-            <div class="hero-side-card">
-              <h3>🚚 شحن مجاني</h3>
-              <p>على الطلبات فوق 50,000 ${STORE.currency}</p>
+            <div class="hero-side-card" style="background:linear-gradient(135deg,#00B894,#55EFC4)" onclick="Router.navigate('category/2')">
+              <div style="font-size:32px;margin-bottom:8px">📱</div>
+              <h3>إلكترونيات</h3>
+              <p>أحدث الأجهزة بأسعار الجملة</p>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Counter -->
+    <section style="padding:20px 0;background:var(--white)">
+      <div class="container">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center">
+          <div style="padding:16px">
+            <div style="font-size:32px;font-weight:900;color:var(--primary)">+10,000</div>
+            <div style="font-size:14px;color:var(--gray-500);margin-top:4px">منتج متاح</div>
+          </div>
+          <div style="padding:16px">
+            <div style="font-size:32px;font-weight:900;color:var(--primary)">+500</div>
+            <div style="font-size:14px;color:var(--gray-500);margin-top:4px">تاجر موثق</div>
+          </div>
+          <div style="padding:16px">
+            <div style="font-size:32px;font-weight:900;color:var(--primary)">+50,000</div>
+            <div style="font-size:14px;color:var(--gray-500);margin-top:4px">طلب مكتمل</div>
+          </div>
+          <div style="padding:16px">
+            <div style="font-size:32px;font-weight:900;color:var(--primary)">24</div>
+            <div style="font-size:14px;color:var(--gray-500);margin-top:4px">محافظة</div>
           </div>
         </div>
       </div>
@@ -92,11 +141,11 @@ function renderHome() {
     <section class="section">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title"><span class="title-icon">📂</span> التصنيفات الرئيسية</h2>
-          <a class="section-more" onclick="Router.navigate('categories')">عرض الكل ←</a>
+          <h2 class="section-title"><span class="title-icon">📂</span> تصفح حسب التصنيف</h2>
+          <a class="section-more" onclick="Router.navigate('categories')">عرض جميع التصنيفات ←</a>
         </div>
         <div class="categories-grid">
-          ${STORE.categories.map(cat => `
+          ${topCategories.map(cat => `
             <div class="category-card" onclick="Router.navigate('category/${cat.id}')">
               <div class="cat-emoji">${cat.icon}</div>
               <div class="cat-name">${cat.name}</div>
@@ -112,13 +161,19 @@ function renderHome() {
       <div class="container">
         <div class="flash-deals">
           <div class="flash-header">
-            <h2>⚡ عروض فلاش</h2>
-            <div class="flash-timer">
-              <div class="timer-block" id="timer-h">08</div>
-              <span class="timer-sep">:</span>
-              <div class="timer-block" id="timer-m">45</div>
-              <span class="timer-sep">:</span>
-              <div class="timer-block" id="timer-s">30</div>
+            <div>
+              <h2 style="color:white;font-size:24px;font-weight:800;margin-bottom:4px">⚡ عروض فلاش</h2>
+              <p style="color:rgba(255,255,255,0.8);font-size:14px">خصومات حصرية لفترة محدودة</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px">
+              <div class="flash-timer">
+                <div class="timer-block" id="timer-h">08</div>
+                <span class="timer-sep">:</span>
+                <div class="timer-block" id="timer-m">45</div>
+                <span class="timer-sep">:</span>
+                <div class="timer-block" id="timer-s">30</div>
+              </div>
+              <button class="btn" style="background:white;color:var(--accent);font-weight:700" onclick="Router.navigate('categories')">عرض الكل ←</button>
             </div>
           </div>
           <div class="flash-products">
@@ -153,6 +208,23 @@ function renderHome() {
         </div>
         <div class="products-grid">
           ${popularProducts.map(renderProductCard).join('')}
+        </div>
+      </div>
+    </section>
+
+    <!-- Banner CTA -->
+    <section class="section">
+      <div class="container">
+        <div style="background:linear-gradient(135deg,#1A1A2E,#16213E);border-radius:var(--radius-xl);padding:48px;display:flex;align-items:center;justify-content:space-between;color:white">
+          <div>
+            <h2 style="font-size:28px;font-weight:800;margin-bottom:8px">🏪 ابدأ بيع منتجاتك الآن</h2>
+            <p style="font-size:16px;opacity:0.8;margin-bottom:20px">انضم إلى أكثر من 500 تاجر في سوق الجمله اليمني وابدأ البيع لجميع المحافظات</p>
+            <div style="display:flex;gap:12px">
+              <button class="btn btn-lg" style="background:var(--primary);color:white" onclick="Router.navigate('register')">سجّل كبائع</button>
+              <button class="btn btn-lg" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.3)">تعرف على المزيد</button>
+            </div>
+          </div>
+          <div style="font-size:100px;opacity:0.3">🏪</div>
         </div>
       </div>
     </section>
@@ -205,9 +277,24 @@ function renderHome() {
         </div>
       </div>
     </section>
+
+    <!-- Newsletter -->
+    <section class="section">
+      <div class="container">
+        <div style="background:var(--primary-bg);border-radius:var(--radius-xl);padding:40px;text-align:center">
+          <h2 style="font-size:24px;font-weight:800;margin-bottom:8px">📧 اشترك في النشرة البريدية</h2>
+          <p style="color:var(--gray-600);margin-bottom:20px">احصل على أحدث العروض والمنتجات مباشرة في بريدك</p>
+          <div style="display:flex;max-width:500px;margin:0 auto;gap:8px">
+            <input type="email" placeholder="أدخل بريدك الإلكتروني..." style="flex:1;padding:12px 16px;border:2px solid var(--primary);border-radius:var(--radius-md);font-size:14px">
+            <button class="btn btn-primary" style="padding:12px 24px">اشتراك</button>
+          </div>
+        </div>
+      </div>
+    </section>
   `;
 
   startFlashTimer();
+  startPromoTimer();
 }
 
 // Flash Timer
@@ -225,6 +312,19 @@ function startFlashTimer() {
     if (elH) elH.textContent = String(h).padStart(2, '0');
     if (elM) elM.textContent = String(m).padStart(2, '0');
     if (elS) elS.textContent = String(s).padStart(2, '0');
+  }, 1000);
+}
+
+function startPromoTimer() {
+  let total = 23 * 3600 + 59 * 60 + 48;
+  setInterval(() => {
+    if (total <= 0) return;
+    total--;
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    const el = document.getElementById('promo-timer');
+    if (el) el.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
   }, 1000);
 }
 
