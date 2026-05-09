@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سوق الجمله اليمني | Yemeni Wholesale Market</title>
+  <meta name="description" content="أكبر منصة تجارية بالجملة في اليمن — آلاف المنتجات بأسعار الجملة">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏪</text></svg>">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div>
+        مرحباً بكم في سوق الجمله اليمني — أكبر منصة تجارية بالجملة 🇾🇪
+      </div>
+      <div class="top-bar-right">
+        <a onclick="Router.navigate('dashboard')">🏪 بع تجارتك</a>
+        <a>📞 خدمة العملاء</a>
+        <a>🌐 اللغة</a>
+        <a>🇾🇪 اليمن</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-top">
+      <div class="container">
+        <!-- Logo -->
+        <a class="logo" onclick="Router.navigate('home')">
+          <div class="logo-icon">🏪</div>
+          <div>
+            <div>سوق الجمله اليمني</div>
+            <span class="logo-sub">Yemeni Wholesale Market</span>
+          </div>
+        </a>
+
+        <!-- Search -->
+        <div class="search-bar">
+          <div class="input-group">
+            <input type="text" id="search-input" placeholder="ابحث عن منتجات، تصنيفات، متاجر...">
+            <button class="search-btn" id="search-btn">🔍</button>
+          </div>
+          <div class="search-suggestions">
+            <a onclick="document.getElementById('search-input').value='هواتف';Router.navigate('search/هواتف')">هواتف</a>
+            <a onclick="document.getElementById('search-input').value='عبايات';Router.navigate('search/عبايات')">عبايات</a>
+            <a onclick="document.getElementById('search-input').value='سماعات';Router.navigate('search/سماعات')">سماعات</a>
+            <a onclick="document.getElementById('search-input').value='مكياج';Router.navigate('search/مكياج')">مكياج</a>
+            <a onclick="document.getElementById('search-input').value='أدوات';Router.navigate('search/أدوات')">أدوات</a>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="header-actions">
+          <div class="header-action" onclick="Router.navigate('login')">
+            <span class="action-icon">👤</span>
+            <span>حسابي</span>
+          </div>
+          <div class="header-action" onclick="Router.navigate('orders')">
+            <span class="action-icon">📦</span>
+            <span>طلباتي</span>
+          </div>
+          <div class="header-action" onclick="Router.navigate('cart')">
+            <span class="action-icon">
+              🛒
+              <span class="action-badge" id="cart-badge">0</span>
+            </span>
+            <span>السلة</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories Navigation -->
+    <nav class="categories-nav">
+      <div class="container" style="display:flex;align-items:center">
+        <div class="categories-trigger" id="cat-trigger">
+          <span class="hamburger">☰</span>
+          جميع التصنيفات
+          <div class="categories-menu" id="cat-menu">
+            <div class="category-item" onclick="Router.navigate('category/1')">
+              <span class="cat-icon">📱</span> إلكترونيات
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('category/2')">
+              <span class="cat-icon">👗</span> أزياء وموضة
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('category/3')">
+              <span class="cat-icon">🏠</span> منزلمطبخ
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('category/4')">
+              <span class="cat-icon">💄</span> صحة وجمال
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('category/5')">
+              <span class="cat-icon">⚽</span> رياضة
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('category/6')">
+              <span class="cat-icon">🧸</span> ألعاب وأطفال
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('category/7')">
+              <span class="cat-icon">🚗</span> سيارات
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('category/8')">
+              <span class="cat-icon">🔧</span> أدوات ومعدات
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('category/9')">
+              <span class="cat-icon">💍</span> مجوهرات
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('category/10')">
+              <span class="cat-icon">👜</span> حقائب وأحذية
+              <span class="arrow">←</span>
+            </div>
+            <div class="category-item" onclick="Router.navigate('categories')" style="color:var(--primary);font-weight:600">
+              عرض الكل ←
+            </div>
+          </div>
+        </div>
+        <div class="nav-links">
+          <a class="nav-link active" data-page="home" onclick="Router.navigate('home')">الرئيسية</a>
+          <a class="nav-link" data-page="categories" onclick="Router.navigate('categories')">التصنيفات</a>
+          <a class="nav-link" onclick="Router.navigate('category/1')">إلكترونيات</a>
+          <a class="nav-link" onclick="Router.navigate('category/2')">أزياء</a>
+          <a class="nav-link" onclick="Router.navigate('category/3')">منزلمطبخ</a>
+          <a class="nav-link" style="color:var(--accent);font-weight:700">🔥 عروض اليوم</a>
+          <a class="nav-link" onclick="Router.navigate('dashboard')">🏪 لوحة التاجر</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main id="app-content">
+    <!-- Content rendered by JS -->
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <div class="footer-logo">🏪 سوق الجمله اليمني</div>
+          <p>أكبر منصة تجارية بالجملة في اليمن. نوفر آلاف المنتجات بأسعار الجملة مع ضمان الجودة وتوصيل سريع لجميع المحافظات اليمنية.</p>
+          <div class="footer-social">
+            <a>📘</a>
+            <a>📸</a>
+            <a>🐦</a>
+            <a>📺</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>روابط سريعة</h4>
+          <a onclick="Router.navigate('home')">الرئيسية</a>
+          <a onclick="Router.navigate('categories')">التصنيفات</a>
+          <a>العروض</a>
+          <a>المنتجات الجديدة</a>
+          <a>الأكثر مبيعاً</a>
+        </div>
+        <div class="footer-col">
+          <h4>خدمة العملاء</h4>
+          <a>مركز المساعدة</a>
+          <a>تتبع الطلب</a>
+          <a>سياسة الإرجاع</a>
+          <a>الشحن والتوصيل</a>
+          <a>اتصل بنا</a>
+        </div>
+        <div class="footer-col">
+          <h4>للتجار والبائعين</h4>
+          <a onclick="Router.navigate('register')">ابدأ البيع</a>
+          <a>مركز البائع</a>
+          <a>الشروط والأحكام</a>
+          <a>الشراكات</a>
+          <a>الإعلانات</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>© 2026 سوق الجمله اليمني. جميع الحقوق محفوظة 🇾🇪</div>
+        <div class="footer-payments">
+          <span title="الدفع عند الاستلام">💵</span>
+          <span title="جوالي كاش">📱</span>
+          <span title="يمن موبايل كاش">💳</span>
+          <span title="تحويل بنكي">🏦</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
