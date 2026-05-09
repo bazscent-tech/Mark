@@ -261,7 +261,7 @@ function renderCategory(catId) {
   if (!cat) { content.innerHTML = '<div class="container"><div class="empty-state"><h3>التصنيف غير موجود</h3></div></div>'; return; }
 
   const products = STORE.products.filter(p => p.category == catId);
-  const subCats = STORE.subCategories[catId] || [];
+  const subCats = cat.subCategories || [];
   let currentSort = 'popular';
   let filteredProducts = [...products];
 
@@ -306,8 +306,8 @@ function renderCategory(catId) {
         <!-- Sub Categories -->
         ${subCats.length > 0 ? `
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
-            <span class="tag active">الكل</span>
-            ${subCats.map(sub => `<span class="tag" onclick="this.classList.toggle('active')">${sub}</span>`).join('')}
+            <span class="tag active" onclick="filterBySubCat(this, 'all')">الكل</span>
+            ${subCats.map(sub => `<span class="tag" onclick="filterBySubCat(this, '${sub}')">${sub}</span>`).join('')}
           </div>
         ` : ''}
 
@@ -332,6 +332,14 @@ function renderCategory(catId) {
       </div>
     </section>
   `;
+}
+
+function filterBySubCat(element, subCat) {
+  // Update active tag
+  element.parentElement.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+  element.classList.add('active');
+  // Filter would go here with actual data
+  showToast(`تصفية: ${subCat === 'all' ? 'الكل' : subCat}`);
 }
 
 // --- Page: Product Detail ---

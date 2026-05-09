@@ -1,37 +1,23 @@
-// ===== سوق الجمله اليمني - Data Store =====
+// ===== سوق الجمله اليمني - Data Store (Updated with Full Categories) =====
 
+// Load categories from categories.js
 const STORE = {
   name: 'سوق الجمله اليمني',
   nameEn: 'Yemeni Wholesale Market',
   currency: '﷼',
   currencyEn: 'YER',
 
-  categories: [
-    { id: 1, name: 'إلكترونيات', icon: '📱', count: 1250 },
-    { id: 2, name: 'أزياء وموضة', icon: '👗', count: 3400 },
-    { id: 3, name: 'منزل ومطبخ', icon: '🏠', count: 890 },
-    { id: 4, name: 'صحة وجمال', icon: '💄', count: 1100 },
-    { id: 5, name: 'رياضة و outdoors', icon: '⚽', count: 670 },
-    { id: 6, name: 'ألعاب وأطفال', icon: '🧸', count: 540 },
-    { id: 7, name: 'سيارات وقطع غيار', icon: '🚗', count: 430 },
-    { id: 8, name: 'أدوات ومعدات', icon: '🔧', count: 780 },
-    { id: 9, name: 'مجوهرات وإكسسوارات', icon: '💍', count: 920 },
-    { id: 10, name: 'حقائب وأحذية', icon: '👜', count: 1560 },
-    { id: 11, name: 'كتب وقرطاسية', icon: '📚', count: 340 },
-    { id: 12, name: 'أثاث ومفروشات', icon: '🛋️', count: 450 },
-  ],
+  categories: CATEGORIES_DATA.categories,
 
-  subCategories: {
-    1: ['هواتف ذكية', 'لابتوبات', 'سماعات', 'ساعات ذكية', 'كاميرات', 'شاشات', 'أجهزة لوحية', 'ملحقات'],
-    2: ['ملابس رجالية', 'ملابس نسائية', 'ملابس أطفال', 'عبايات', 'ملابس داخلية', 'أزياء رياضية'],
-    3: ['أواني طبخ', 'أجهزة منزلية', 'تخزين', 'ديكور', 'إضاءة', 'أدوات تنظيف'],
-    4: ['مكياج', 'عناية بالبشرة', 'عطور', 'عناية بالشعر', 'أدوات تجميل'],
+  getSubCategories(catId) {
+    const cat = this.categories.find(c => c.id === catId);
+    return cat ? cat.subCategories : [];
   },
 
   products: [
     {
       id: 1001, name: 'هاتف ذكي Xiaomi Redmi Note 13 Pro - شاشة AMOLED 6.67 بوصة - كاميرا 200 ميجا بيكسل',
-      category: 1, subCategory: 'هواتف ذكية', price: 45000, originalPrice: 65000,
+      category: 2, subCategory: 'هواتف ذكية', price: 45000, originalPrice: 65000,
       image: '📱', rating: 4.7, reviews: 2340, orders: 5600,
       store: 'TechWorld Store', storeBadge: 'متجر ذهبي', moq: 2,
       variants: { 'اللون': ['أسود', 'أبيض', 'أزرق', 'أخضر'], 'الذاكرة': ['128GB', '256GB', '512GB'] },
@@ -41,7 +27,7 @@ const STORE = {
     },
     {
       id: 1002, name: 'لابتوب Lenovo IdeaPad 3 - معالج Intel Core i5 - ذاكرة 8GB - SSD 512GB',
-      category: 1, subCategory: 'لابتوبات', price: 120000, originalPrice: 165000,
+      category: 2, subCategory: 'لابتوبات', price: 120000, originalPrice: 165000,
       image: '💻', rating: 4.5, reviews: 890, orders: 2100,
       store: 'Digital Hub', storeBadge: 'بائع معتمد', moq: 1,
       variants: { 'المعالج': ['i3', 'i5', 'i7'], 'الذاكرة': ['8GB', '16GB', '32GB'] },
@@ -51,7 +37,7 @@ const STORE = {
     },
     {
       id: 1003, name: 'سماعات لاسلكية TWS بلوتوث 5.3 - إلغاء ضوضاء نشط - مقاومة للماء IPX5',
-      category: 1, subCategory: 'سماعات', price: 8500, originalPrice: 15000,
+      category: 2, subCategory: 'سماعات وأذنيات', price: 8500, originalPrice: 15000,
       image: '🎧', rating: 4.3, reviews: 5670, orders: 12000,
       store: 'Audio Pro', storeBadge: 'متجر ذهبي', moq: 5,
       variants: { 'اللون': ['أسود', 'أبيض', 'وردي'], 'النوع': ['عادية', 'Pro'] },
@@ -61,7 +47,7 @@ const STORE = {
     },
     {
       id: 1004, name: 'ساعة ذكية Smart Watch - مراقبة صحة القلب - تتبع الرياضة - شاشة 1.43 بوصة',
-      category: 1, subCategory: 'ساعات ذكية', price: 12000, originalPrice: 22000,
+      category: 2, subCategory: 'ساعات ذكية', price: 12000, originalPrice: 22000,
       image: '⌚', rating: 4.4, reviews: 3200, orders: 7800,
       store: 'GadgetZone', storeBadge: 'بائع مميز', moq: 3,
       variants: { 'اللون': ['أسود', 'فضي', 'ذهبي'], 'السوار': ['سيليكون', 'معدن', 'جلد'] },
@@ -71,7 +57,7 @@ const STORE = {
     },
     {
       id: 2001, name: 'عباية نسائية فاخرة - قماش كريب ياباني - تطريز يدوي - تصميم عصري',
-      category: 2, subCategory: 'عبايات', price: 18000, originalPrice: 28000,
+      category: 1, subCategory: 'عبايات وحجاب', price: 18000, originalPrice: 28000,
       image: '🧕', rating: 4.8, reviews: 1560, orders: 4200,
       store: 'أزياء الخليج', storeBadge: 'متجر ذهبي', moq: 2,
       variants: { 'المقاس': ['S', 'M', 'L', 'XL', 'XXL'], 'اللون': ['أسود', 'كحلي', 'بنفسجي'] },
@@ -81,7 +67,7 @@ const STORE = {
     },
     {
       id: 2002, name: 'فستان نسائي صيفي - قماش خفيف - طباعة زهور - multiple ألوان',
-      category: 2, subCategory: 'ملابس نسائية', price: 9500, originalPrice: 16000,
+      category: 1, subCategory: 'ملابس نسائية', price: 9500, originalPrice: 16000,
       image: '👗', rating: 4.6, reviews: 2100, orders: 5800,
       store: 'Fashion House', storeBadge: 'بائع معتمد', moq: 3,
       variants: { 'المقاس': ['S', 'M', 'L', 'XL'], 'اللون': ['أحمر', 'أزرق', 'أخضر', 'أصفر'] },
@@ -91,7 +77,7 @@ const STORE = {
     },
     {
       id: 2003, name: 'ثوب رجالي قطن مصري فاخر - تصميم كلاسيكي - multiple ألوان',
-      category: 2, subCategory: 'ملابس رجالية', price: 14000, originalPrice: 20000,
+      category: 1, subCategory: 'ملابس رجالية', price: 14000, originalPrice: 20000,
       image: '👔', rating: 4.7, reviews: 980, orders: 3100,
       store: 'رجال الأناقة', storeBadge: 'متجر ذهبي', moq: 2,
       variants: { 'المقاس': ['M', 'L', 'XL', 'XXL', '3XL'], 'اللون': ['أبيض', 'بيج', 'رمادي'] },
@@ -101,7 +87,7 @@ const STORE = {
     },
     {
       id: 3001, name: 'طقم أواني طبخ ستانلس ستيل 10 قطع - غير لاصق - مناسب لجميع المواقد',
-      category: 3, subCategory: 'أواني طبخ', price: 35000, originalPrice: 55000,
+      category: 6, subCategory: 'أواني طبخ', price: 35000, originalPrice: 55000,
       image: '🍳', rating: 4.6, reviews: 1890, orders: 4500,
       store: 'مطبخك', storeBadge: 'بائع معتمد', moq: 1,
       variants: { 'العدد': ['7 قطع', '10 قطع', '15 قطع'] },
@@ -111,7 +97,7 @@ const STORE = {
     },
     {
       id: 3002, name: 'خلاط كهربائي متعدد الاستخدامات - 1000 واط - 5 سرعات - مطحنة',
-      category: 3, subCategory: 'أجهزة منزلية', price: 22000, originalPrice: 32000,
+      category: 23, subCategory: 'خلاطات', price: 22000, originalPrice: 32000,
       image: '🔌', rating: 4.4, reviews: 1200, orders: 2800,
       store: 'أجهزة المنزل', storeBadge: 'متجر ذهبي', moq: 2,
       variants: { 'اللون': ['أحمر', 'أسود', 'فضي'] },
@@ -141,7 +127,7 @@ const STORE = {
     },
     {
       id: 5001, name: 'دراجة هوائية جبلية 21 سرعة - إطارات 26 بوصة - هيكل ألومنيوم',
-      category: 5, subCategory: 'دراجات', price: 85000, originalPrice: 120000,
+      category: 3, subCategory: 'دراجات هوائية', price: 85000, originalPrice: 120000,
       image: '🚲', rating: 4.3, reviews: 670, orders: 1200,
       store: 'Sports World', storeBadge: 'بائع مميز', moq: 1,
       variants: { 'اللون': ['أحمر', 'أزرق', 'أسود'] },
@@ -151,7 +137,7 @@ const STORE = {
     },
     {
       id: 6001, name: 'لعبة بناء ذهنية 500 قطعة - تنمي المهارات - مناسبة لعمر 6+',
-      category: 6, subCategory: 'ألعاب تعليمية', price: 7500, originalPrice: 12000,
+      category: 11, subCategory: 'ألعاب بناء', price: 7500, originalPrice: 12000,
       image: '🧩', rating: 4.8, reviews: 2100, orders: 5600,
       store: 'Toy Land', storeBadge: 'متجر ذهبي', moq: 5,
       variants: { 'العدد': ['200 قطعة', '500 قطعة', '1000 قطعة'] },
@@ -161,7 +147,7 @@ const STORE = {
     },
     {
       id: 7001, name: 'إطار سيارة 205/55R16 - صناعة يابانية - مقاوم للتآكل',
-      category: 7, subCategory: 'إطارات', price: 45000, originalPrice: 60000,
+      category: 24, subCategory: 'إطارات', price: 45000, originalPrice: 60000,
       image: '🛞', rating: 4.5, reviews: 890, orders: 2100,
       store: 'Auto Parts', storeBadge: 'بائع معتمد', moq: 2,
       variants: { 'المقاس': ['195/65R15', '205/55R16', '215/60R17'] },
@@ -171,7 +157,7 @@ const STORE = {
     },
     {
       id: 8001, name: 'طقم أدوات كهربائية 100 قطعة - مثقاب + مفك + قطع تقطيع',
-      category: 8, subCategory: 'أدوات كهربائية', price: 38000, originalPrice: 55000,
+      category: 26, subCategory: 'أدوات كهربائية', price: 38000, originalPrice: 55000,
       image: '🔧', rating: 4.4, reviews: 1560, orders: 3400,
       store: 'Tools Pro', storeBadge: 'متجر ذهبي', moq: 1,
       variants: { 'الطقم': ['50 قطعة', '100 قطعة', '150 قطعة'] },
@@ -181,7 +167,7 @@ const STORE = {
     },
     {
       id: 9001, name: 'ساعة يد رجالية فاخرة - حركة سويسرية - ستانلس ستيل - مقاومة للماء',
-      category: 9, subCategory: 'ساعات يد', price: 25000, originalPrice: 40000,
+      category: 5, subCategory: 'ساعات يد رجالية', price: 25000, originalPrice: 40000,
       image: '⌚', rating: 4.6, reviews: 2300, orders: 5100,
       store: 'Luxury Watches', storeBadge: 'متجر ذهبي', moq: 1,
       variants: { 'اللون': ['ذهبي', 'فضي', 'أسود'], 'السوار': ['ستانلس', 'جلد'] },
@@ -191,7 +177,7 @@ const STORE = {
     },
     {
       id: 10001, name: 'حقيبة ظهر رجالية - مقاومة للماء - حامل لابتوب - USB مدمج',
-      category: 10, subCategory: 'حقائب ظهر', price: 11000, originalPrice: 18000,
+      category: 9, subCategory: 'حقائب ظهر', price: 11000, originalPrice: 18000,
       image: '🎒', rating: 4.5, reviews: 3400, orders: 7800,
       store: 'Bag Store', storeBadge: 'بائع معتمد', moq: 3,
       variants: { 'اللون': ['أسود', 'رمادي', 'أزرق'], 'الحجم': ['عادي', 'كبير'] },
@@ -199,6 +185,36 @@ const STORE = {
       description: 'حقيبة ظهر متعددة الاستخدامات بمنفذ USB مدمج ومقاومة للماء.',
       soldPercent: 73
     },
+    {
+      id: 11001, name: 'لعبة تعليمية للأطفال - مكعبات ألوان - تنمي المهارات الحركية',
+      category: 11, subCategory: 'ألعاب تعليمية', price: 5500, originalPrice: 9000,
+      image: '🎲', rating: 4.7, reviews: 1800, orders: 4200,
+      store: 'Kids Education', storeBadge: 'بائع معتمد', moq: 10,
+      variants: { 'العدد': ['20 قطعة', '50 قطعة', '100 قطعة'] },
+      specs: { 'العمر': '3+', 'المادة': 'خشب آمن', 'الألوان': '10 ألوان', 'الشهادة': 'CE' },
+      description: 'لعبة تعليمية من الخشب الآمن تنمي المهارات الحركية والإبداع.',
+      soldPercent: 67
+    },
+    {
+      id: 12001, name: 'نظارة شمسية أصلية - حماية UV400 - تصميم عصري',
+      category: 5, subCategory: 'نظارات شمسية', price: 8000, originalPrice: 15000,
+      image: '🕶️', rating: 4.4, reviews: 2800, orders: 6500,
+      store: ' optics World', storeBadge: 'متجر ذهبي', moq: 5,
+      variants: { 'اللون': ['أسود', 'بني', 'ذهبي'], 'الشكل': ['دائري', 'مربع', 'طيار'] },
+      specs: { 'الحماية': 'UV400', 'المادة': 'بولي كربونات', 'العدسات': 'مستقطبة', 'الوزن': '25g' },
+      description: 'نظارة شمسية أصلية بحماية UV400 وعدسات مستقطبة.',
+      soldPercent: 59
+    },
+    {
+      id: 13001, name: 'كاميرا مراقبة ذكية - دقة 4K - رؤية ليلية - تحكم عبر التطبيق',
+      category: 29, subCategory: 'كاميرات مراقبة', price: 18000, originalPrice: 28000,
+      image: '📷', rating: 4.6, reviews: 1900, orders: 4300,
+      store: 'Security Pro', storeBadge: 'بائع معتمد', moq: 2,
+      variants: { 'الدقة': ['1080p', '2K', '4K'], 'النوع': ['داخلية', 'خارجية'] },
+      specs: { 'الدقة': '4K', 'الرؤية الليلية': 'حتى 30 متر', 'التخزين': 'SD + سحابي', 'التطبيق': 'iOS & Android' },
+      description: 'كاميرا مراقبة ذكية بدقة 4K ورؤية ليلية ممتازة.',
+      soldPercent: 71
+    }
   ],
 
   reviews: [
