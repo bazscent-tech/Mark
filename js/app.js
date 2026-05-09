@@ -351,12 +351,9 @@ function renderProduct(productId) {
   const cat = STORE.categories.find(c => c.id === product.category);
   const discount = Math.round((1 - product.price / product.originalPrice) * 100);
   let quantity = product.moq;
-  let selectedVariants = {};
 
-  // Initialize variants
-  Object.entries(product.variants).forEach(([key, values]) => {
-    selectedVariants[key] = values[0];
-  });
+  // Colors for gallery thumbnails
+  const colors = ['#f0f0f0', '#e8e8e8', '#f5f5f5', '#ececec'];
 
   content.innerHTML = `
     <section class="product-page">
@@ -367,20 +364,24 @@ function renderProduct(productId) {
           <span class="sep">←</span>
           <a onclick="Router.navigate('category/${product.category}')">${cat ? cat.icon + ' ' + cat.name : ''}</a>
           <span class="sep">←</span>
-          <span>${product.subCategory}</span>
+          <a onclick="Router.navigate('category/${product.category}')">${product.subCategory}</a>
+          <span class="sep">←</span>
+          <span style="color:var(--gray-700)">${product.name.substring(0, 40)}...</span>
         </div>
 
         <!-- Product Detail -->
         <div class="product-detail">
           <!-- Gallery -->
           <div class="product-gallery">
-            <div class="gallery-main">
-              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:120px;background:var(--gray-100)">${product.image}</div>
+            <div class="gallery-main" id="main-image">
+              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:140px;background:var(--gray-100);cursor:crosshair">${product.image}</div>
+              ${discount > 0 ? `<div style="position:absolute;top:12px;right:12px;background:var(--accent);color:white;padding:6px 12px;border-radius:var(--radius-md);font-weight:700;font-size:14px;z-index:2">-${discount}%</div>` : ''}
+              <button style="position:absolute;top:12px;left:12px;width:40px;height:40px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:var(--shadow-md);z-index:2;cursor:pointer;border:none" onclick="this.style.color=this.style.color==='red'?'':'red'">♡</button>
             </div>
             <div class="gallery-thumbs">
-              ${[1,2,3,4].map((_, i) => `
+              ${colors.map((c, i) => `
                 <div class="gallery-thumb ${i === 0 ? 'active' : ''}" onclick="this.parentElement.querySelectorAll('.gallery-thumb').forEach(t=>t.classList.remove('active'));this.classList.add('active')">
-                  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--gray-100)">${product.image}</div>
+                  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;background:${c}">${product.image}</div>
                 </div>
               `).join('')}
             </div>
@@ -388,21 +389,44 @@ function renderProduct(productId) {
 
           <!-- Info -->
           <div class="product-info-section">
-            <h1>${product.name}</h1>
+            <h1 style="font-size:20px;line-height:1.5;margin-bottom:12px">${product.name}</h1>
 
-            <div class="product-rating-row">
+            <div class="product-rating-row" style="margin-bottom:16px">
               <span class="stars">${generateStars(product.rating)}</span>
-              <span class="rating-score">${product.rating}</span>
-              <span class="orders-count">${product.reviews.toLocaleString()} تقييم</span>
-              <span class="orders-count">${product.orders.toLocaleString} طلب</span>
+              <span class="rating-score" style="font-weight:700;color:var(--primary)">${product.rating}</span>
+              <span style="color:var(--gray-500);font-size:13px">${product.reviews.toLocaleString()} تقييم</span>
+              <span style="color:var(--primary);font-size:13px;font-weight:600">${product.orders.toLocaleString()} طلب</span>
+              <span style="color:var(--gray-500);font-size:13px">❤️ ${Math.floor(product.orders * 0.3).toLocaleString()} إعجاب</span>
             </div>
 
             <!-- Price -->
-            <div class="price-box">
-              <span class="price-current">${formatPrice(product.price)} <span class="currency">${STORE.currency}</span></span>
-              <span class="price-original">${formatPrice(product.originalPrice)} ${STORE.currency}</span>
-              <span class="price-discount">-${discount}%</span>
-              <div style="font-size:12px;color:var(--gray-500);margin-top:4px">شامل ضريبة القيمة المضافة</div>
+            <div class="price-box" style="margin-bottom:20px">
+              <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:8px">
+                <span class="price-current">${formatPrice(product.price)} <span class="currency">${STORE.currency}</span></span>
+                <span class="price-original">${formatPrice(product.originalPrice)} ${STORE.currency}</span>
+                <span class="price-discount">-${discount}%</span>
+              </div>
+              <div style="display:flex;gap:16px;font-size:12px;color:var(--gray-500)">
+                <span>💰 وفر ${formatPrice(product.originalPrice - product.price)} ${STORE.currency}</span>
+                <span>📦 ${product.price > 50000 ? 'شحن مجاني' : 'شحن: 3,000 ' + STORE.currency}</span>
+                <span>⏰ ينتهي خلال 2 يوم</span>
+              </div>
+            </div>
+
+            <!-- Shipping Info -->
+            <div style="background:var(--gray-50);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:20px;display:flex;gap:24px;font-size:13px">
+              <div>
+                <span style="color:var(--gray-500)">الشحن:</span>
+                <span style="font-weight:600;color:var(--success)">مجاني</span>
+              </div>
+              <div>
+                <span style="color:var(--gray-500)">التوصيل:</span>
+                <span style="font-weight:600">7-15 يوم عمل</span>
+              </div>
+              <div>
+                <span style="color:var(--gray-500)">المنشأ:</span>
+                <span style="font-weight:600">الصين</span>
+              </div>
             </div>
 
             <!-- Variants -->
@@ -426,52 +450,70 @@ function renderProduct(productId) {
                 <button onclick="updateQty(1)">+</button>
               </div>
               <span class="moq-info">الحد الأدنى: ${product.moq} قطع</span>
+              <span style="font-size:12px;color:var(--gray-500);margin-inline-start:auto">${Math.floor(Math.random() * 500) + 100} قطعة متاحة</span>
             </div>
 
             <!-- Actions -->
             <div class="product-actions">
-              <button class="btn btn-primary btn-lg" onclick="addToCart(${product.id})">
+              <button class="btn btn-primary btn-lg" onclick="addToCart(${product.id})" style="flex:2">
                 🛒 أضف إلى السلة
               </button>
-              <button class="btn btn-outline btn-lg" onclick="buyNow(${product.id})">
+              <button class="btn btn-outline btn-lg" onclick="buyNow(${product.id})" style="flex:1">
                 ⚡ اطلب الآن
               </button>
             </div>
 
+            <!-- Wishlist & Share -->
+            <div style="display:flex;gap:16px;margin-bottom:16px;font-size:13px">
+              <a style="color:var(--gray-500);cursor:pointer;display:flex;align-items:center;gap:4px">♡ أضف للمفضلة</a>
+              <a style="color:var(--gray-500);cursor:pointer;display:flex;align-items:center;gap:4px">↗ مشاركة</a>
+              <a style="color:var(--gray-500);cursor:pointer;display:flex;align-items:center;gap:4px">📊 مقارنة</a>
+            </div>
+
             <!-- Store Info -->
-            <div style="background:var(--gray-50);border-radius:var(--radius-md);padding:16px;display:flex;align-items:center;gap:16px;margin-top:16px">
-              <div style="width:48px;height:48px;border-radius:50%;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:24px">🏪</div>
-              <div>
-                <div style="font-weight:700;font-size:15px">${product.store}</div>
-                <div style="font-size:12px;color:var(--gray-500)">${product.storeBadge}</div>
+            <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px;display:flex;align-items:center;gap:16px;margin-bottom:16px">
+              <div style="width:56px;height:56px;border-radius:var(--radius-lg);background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-size:28px;color:white">🏪</div>
+              <div style="flex:1">
+                <div style="font-weight:700;font-size:15px;margin-bottom:2px">${product.store}</div>
+                <div style="display:flex;gap:12px;font-size:12px;color:var(--gray-500)">
+                  <span>⭐ ${product.storeBadge}</span>
+                  <span>📦 ${Math.floor(Math.random() * 200) + 50} منتج</span>
+                  <span>💬 ${Math.floor(Math.random() * 95) + 90}% ردود</span>
+                </div>
               </div>
-              <button class="btn btn-outline btn-sm" style="margin-inline-start:auto">زيارة المتجر</button>
+              <button class="btn btn-outline btn-sm">زيارة المتجر</button>
+              <button class="btn btn-primary btn-sm">متابعة</button>
             </div>
 
             <!-- Guarantees -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">
-              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-600)">
-                <span>🛡️</span> ضمان الجودة
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px;background:var(--gray-50);border-radius:var(--radius-lg)">
+              <div style="text-align:center">
+                <div style="font-size:24px;margin-bottom:4px">🛡️</div>
+                <div style="font-size:11px;font-weight:600;color:var(--gray-700)">ضمان الجودة</div>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-600)">
-                <span>🚚</span> شحن سريع
+              <div style="text-align:center">
+                <div style="font-size:24px;margin-bottom:4px">🚚</div>
+                <div style="font-size:11px;font-weight:600;color:var(--gray-700)">شحن سريع</div>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-600)">
-                <span>🔄</span> إرجاع خلال 7 أيام
+              <div style="text-align:center">
+                <div style="font-size:24px;margin-bottom:4px">🔄</div>
+                <div style="font-size:11px;font-weight:600;color:var(--gray-700)">إرجاع 7 أيام</div>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-600)">
-                <span>💳</span> دفع عند الاستلام
+              <div style="text-align:center">
+                <div style="font-size:24px;margin-bottom:4px">💳</div>
+                <div style="font-size:11px;font-weight:600;color:var(--gray-700)">دفع آمن</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Specs -->
+        <!-- Specs & Reviews -->
         <div class="product-specs">
           <div class="tabs">
             <div class="tab active" onclick="switchTab(this,'specs-panel')">المواصفات</div>
             <div class="tab" onclick="switchTab(this,'desc-panel')">الوصف</div>
             <div class="tab" onclick="switchTab(this,'reviews-panel')">التقييمات (${product.reviews})</div>
+            <div class="tab" onclick="switchTab(this,'shipping-panel')">الشحن والإرجاع</div>
           </div>
 
           <div id="specs-panel" style="padding-top:20px">
@@ -486,10 +528,46 @@ function renderProduct(productId) {
           </div>
 
           <div id="desc-panel" class="hidden" style="padding-top:20px">
-            <p style="font-size:15px;line-height:1.8;color:var(--gray-700)">${product.description}</p>
+            <div style="max-width:800px">
+              <h3 style="font-size:18px;font-weight:700;margin-bottom:16px">${product.name}</h3>
+              <p style="font-size:15px;line-height:2;color:var(--gray-700);margin-bottom:16px">${product.description}</p>
+              <div style="background:var(--primary-bg);border-radius:var(--radius-md);padding:16px;margin-top:16px">
+                <h4 style="font-weight:700;margin-bottom:8px">✨ مميزات المنتج:</h4>
+                <ul style="padding-right:20px;color:var(--gray-700);line-height:2">
+                  <li>جودة عالية ومتانة تدوم طويلاً</li>
+                  <li>تصميم عصري يناسب جميع الأذواق</li>
+                  <li>سهولة الاستخدام والصيانة</li>
+                  <li>ضمان شامل على جميع القطع</li>
+                  <li>تغليف احترافي وآمن للشحن</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           <div id="reviews-panel" class="hidden" style="padding-top:20px">
+            <!-- Rating Summary -->
+            <div style="display:flex;gap:40px;margin-bottom:24px;padding:20px;background:var(--gray-50);border-radius:var(--radius-lg)">
+              <div style="text-align:center">
+                <div style="font-size:48px;font-weight:900;color:var(--primary)">${product.rating}</div>
+                <div class="stars" style="font-size:18px">${generateStars(product.rating)}</div>
+                <div style="font-size:13px;color:var(--gray-500);margin-top:4px">${product.reviews.toLocaleString()} تقييم</div>
+              </div>
+              <div style="flex:1">
+                ${[5,4,3,2,1].map(star => {
+                  const pct = star === 5 ? 65 : star === 4 ? 20 : star === 3 ? 10 : star === 2 ? 3 : 2;
+                  return `
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                      <span style="font-size:13px;width:20px">${star}★</span>
+                      <div style="flex:1;height:8px;background:var(--gray-200);border-radius:4px;overflow:hidden">
+                        <div style="width:${pct}%;height:100%;background:var(--accent-gold);border-radius:4px"></div>
+                      </div>
+                      <span style="font-size:12px;color:var(--gray-500);width:30px">${pct}%</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+            <!-- Reviews List -->
             ${STORE.reviews.map(r => `
               <div class="review-card">
                 <div class="review-header">
@@ -501,8 +579,37 @@ function renderProduct(productId) {
                   <div class="review-date">${r.date}</div>
                 </div>
                 <div class="review-text">${r.text}</div>
+                <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--gray-500)">
+                  <a style="cursor:pointer">👍 مفيد (${Math.floor(Math.random() * 20)})</a>
+                  <a style="cursor:pointer">💬 رد</a>
+                </div>
               </div>
             `).join('')}
+          </div>
+
+          <div id="shipping-panel" class="hidden" style="padding-top:20px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+              <div>
+                <h4 style="font-weight:700;margin-bottom:12px">🚚 معلومات الشحن</h4>
+                <div style="font-size:14px;color:var(--gray-700);line-height:2">
+                  <p>• الشحن المجاني للطلبات فوق 50,000 ${STORE.currency}</p>
+                  <p>• وقت التجهيز: 3-5 أيام عمل</p>
+                  <p>• وقت التوصيل: 7-15 يوم عمل</p>
+                  <p>• الشحن إلى جميع المحافظات اليمنية</p>
+                  <p>• تتبع الشحنة عبر رقم التتبع</p>
+                </div>
+              </div>
+              <div>
+                <h4 style="font-weight:700;margin-bottom:12px">🔄 سياسة الإرجاع</h4>
+                <div style="font-size:14px;color:var(--gray-700);line-height:2">
+                  <p>• إرجاع مجاني خلال 7 أيام</p>
+                  <p>• المنتج يجب أن يكون في حالته الأصلية</p>
+                  <p>• استرداد كامل للمبلغ</p>
+                  <p>• ضمان استبدال في حال وجود عيب</p>
+                  <p>• خدمة عملاء على مدار الساعة</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -510,9 +617,20 @@ function renderProduct(productId) {
         <div style="margin-top:40px">
           <div class="section-header">
             <h2 class="section-title"><span class="title-icon">🔗</span> منتجات مشابهة</h2>
+            <a class="section-more" onclick="Router.navigate('category/${product.category}')">عرض الكل ←</a>
           </div>
           <div class="products-grid">
             ${STORE.products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4).map(renderProductCard).join('')}
+          </div>
+        </div>
+
+        <!-- Recently Viewed -->
+        <div style="margin-top:40px">
+          <div class="section-header">
+            <h2 class="section-title"><span class="title-icon">👀</span> شاهدت مؤخراً</h2>
+          </div>
+          <div class="products-grid">
+            ${STORE.products.slice(0, 4).map(renderProductCard).join('')}
           </div>
         </div>
       </div>
