@@ -1104,159 +1104,272 @@ function renderOrders() {
 }
 
 // --- Page: Merchant Dashboard ---
+// ===== Dashboard Sidebar Helper =====
+function renderDashboardSidebar(activeItem) {
+  const stats = STORE.merchantStats;
+  return `
+    <div class="dashboard-sidebar">
+      <div class="sidebar-user">
+        <div class="user-avatar">🏪</div>
+        <div class="user-name">تاجر الجملة</div>
+        <div class="user-role">تاجر ذهبي ⭐</div>
+        <div style="display:flex;gap:8px;margin-top:8px;justify-content:center">
+          <span class="badge badge-success">متصل</span>
+          <span class="badge badge-info">موثق</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="${activeItem === 'dashboard' ? 'active' : ''}" onclick="Router.navigate('dashboard')"><span class="nav-icon">📊</span> لوحة التحكم</a>
+        <a class="${activeItem === 'products' ? 'active' : ''}" onclick="Router.navigate('dashboard/products')"><span class="nav-icon">📦</span> المنتجات <span class="nav-badge">${stats.totalProducts}</span></a>
+        <a class="${activeItem === 'orders' ? 'active' : ''}" onclick="Router.navigate('dashboard/orders')"><span class="nav-icon">🛒</span> الطلبات <span class="nav-badge">${stats.pendingOrders}</span></a>
+        <a class="${activeItem === 'messages' ? 'active' : ''}"><span class="nav-icon">💬</span> الرسائل <span class="nav-badge">5</span></a>
+        <a class="${activeItem === 'analytics' ? 'active' : ''}"><span class="nav-icon">📈</span> التحليلات</a>
+        <a class="${activeItem === 'earnings' ? 'active' : ''}"><span class="nav-icon">💰</span> الأرباح</a>
+        <div class="dropdown-divider" style="margin:8px 0"></div>
+        <a class="${activeItem === 'settings' ? 'active' : ''}"><span class="nav-icon">⚙️</span> الإعدادات</a>
+        <a class="${activeItem === 'customize' ? 'active' : ''}"><span class="nav-icon">🎨</span> تخصيص المتجر</a>
+        <a class="${activeItem === 'coupons' ? 'active' : ''}"><span class="nav-icon">🏷️</span> العروض والكوبونات</a>
+        <a class="${activeItem === 'reviews' ? 'active' : ''}"><span class="nav-icon">⭐</span> التقييمات</a>
+        <div class="dropdown-divider" style="margin:8px 0"></div>
+        <a onclick="Router.navigate('home')"><span class="nav-icon">🏪</span> عرض المتجر</a>
+      </nav>
+    </div>
+  `;
+}
+
 function renderDashboard() {
   const content = document.getElementById('app-content');
   const stats = STORE.merchantStats;
 
+  // Mock sales data for chart
+  const salesData = [65, 78, 52, 88, 95, 72, 110, 85, 92, 105, 88, 120];
+  const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  const maxSale = Math.max(...salesData);
+
   content.innerHTML = `
     <div class="dashboard-layout">
-      <!-- Sidebar -->
-      <div class="dashboard-sidebar">
-        <div class="sidebar-user">
-          <div class="user-avatar">🏪</div>
-          <div class="user-name">تاجر الجملة</div>
-          <div class="user-role">تاجر ذهبي ⭐</div>
-        </div>
-        <nav class="sidebar-nav">
-          <a class="active"><span class="nav-icon">📊</span> لوحة التحكم</a>
-          <a onclick="Router.navigate('dashboard/products')"><span class="nav-icon">📦</span> المنتجات <span class="nav-badge">${stats.totalProducts}</span></a>
-          <a onclick="Router.navigate('dashboard/orders')"><span class="nav-icon">🛒</span> الطلبات <span class="nav-badge">${stats.pendingOrders}</span></a>
-          <a><span class="nav-icon">💬</span> الرسائل <span class="nav-badge">5</span></a>
-          <a><span class="nav-icon">📈</span> التحليلات</a>
-          <a><span class="nav-icon">💰</span> الأرباح</a>
-          <a><span class="nav-icon">⚙️</span> الإعدادات</a>
-          <a><span class="nav-icon">🎨</span> تخصيص المتجر</a>
-          <a><span class="nav-icon">🏷️</span> العروض والكوبونات</a>
-          <a><span class="nav-icon">⭐</span> التقييمات</a>
-          <div class="dropdown-divider" style="margin:8px 0"></div>
-          <a onclick="Router.navigate('home')"><span class="nav-icon">🏪</span> عرض المتجر</a>
-        </nav>
-      </div>
+      ${renderDashboardSidebar('dashboard')}
 
       <!-- Content -->
       <div class="dashboard-content">
         <div class="dashboard-header">
           <div>
             <h2>لوحة التحكم</h2>
-            <p style="color:var(--gray-500);font-size:14px">مرحباً بك، تاجر الجملة 👋</p>
+            <p style="color:var(--gray-500);font-size:14px">مرحباً بك، تاجر الجملة 👋 آخر تحديث: اليوم 10:45 ص</p>
           </div>
           <div style="display:flex;gap:8px">
+            <select style="padding:8px 16px;border-radius:var(--radius-md);border:1px solid var(--gray-300)">
+              <option>آخر 7 أيام</option>
+              <option selected>آخر 30 يوم</option>
+              <option>آخر 3 أشهر</option>
+              <option>هذا العام</option>
+            </select>
             <button class="btn btn-outline btn-sm">📊 تصدير التقرير</button>
             <button class="btn btn-primary btn-sm" onclick="Router.navigate('dashboard/products')">+ إضافة منتج</button>
           </div>
         </div>
 
-        <!-- Stats -->
+        <!-- Stats Cards -->
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">💰</div>
-            <div class="stat-value">${formatPrice(stats.totalSales)}</div>
-            <div class="stat-label">إجمالي المبيعات (${STORE.currency})</div>
-            <div class="stat-change up">↑ ${stats.monthlyGrowth}% هذا الشهر</div>
+          <div class="stat-card" style="border-top:3px solid var(--primary)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="stat-label">إجمالي المبيعات</div>
+                <div class="stat-value">${formatPrice(stats.totalSales)}</div>
+                <div class="stat-change up">↑ ${stats.monthlyGrowth}% هذا الشهر</div>
+              </div>
+              <div class="stat-icon" style="background:var(--primary-bg);padding:12px;border-radius:var(--radius-lg)">💰</div>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">📦</div>
-            <div class="stat-value">${stats.totalOrders.toLocaleString()}</div>
-            <div class="stat-label">إجمالي الطلبات</div>
-            <div class="stat-change up">↑ 8.3% هذا الشهر</div>
+          <div class="stat-card" style="border-top:3px solid var(--info)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="stat-label">إجمالي الطلبات</div>
+                <div class="stat-value">${stats.totalOrders.toLocaleString()}</div>
+                <div class="stat-change up">↑ 8.3% هذا الشهر</div>
+              </div>
+              <div class="stat-icon" style="background:#E3F2FD;padding:12px;border-radius:var(--radius-lg)">📦</div>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">🛍️</div>
-            <div class="stat-value">${stats.totalProducts}</div>
-            <div class="stat-label">المنتجات النشطة</div>
-            <div class="stat-change up">+12 منتج جديد</div>
+          <div class="stat-card" style="border-top:3px solid var(--success)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="stat-label">المنتجات النشطة</div>
+                <div class="stat-value">${stats.totalProducts}</div>
+                <div class="stat-change up">+12 منتج جديد</div>
+              </div>
+              <div class="stat-icon" style="background:#E6F9F1;padding:12px;border-radius:var(--radius-lg)">🛍️</div>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-value">${stats.totalCustomers.toLocaleString()}</div>
-            <div class="stat-label">العملاء</div>
-            <div class="stat-change up">↑ 15.2% هذا الشهر</div>
-          </div>
-        </div>
-
-        <!-- Order Status Cards -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:20px;border:1px solid var(--gray-200);text-align:center">
-            <div style="font-size:32px;margin-bottom:8px">⏳</div>
-            <div style="font-size:28px;font-weight:900;color:#F57F17">${stats.pendingOrders}</div>
-            <div style="font-size:13px;color:var(--gray-500)">طلبات في الانتظار</div>
-          </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:20px;border:1px solid var(--gray-200);text-align:center">
-            <div style="font-size:32px;margin-bottom:8px">📦</div>
-            <div style="font-size:28px;font-weight:900;color:var(--info)">${stats.processingOrders}</div>
-            <div style="font-size:13px;color:var(--gray-500)">قيد التجهيز</div>
-          </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:20px;border:1px solid var(--gray-200);text-align:center">
-            <div style="font-size:32px;margin-bottom:8px">🚚</div>
-            <div style="font-size:28px;font-weight:900;color:var(--success)">${stats.shippedOrders}</div>
-            <div style="font-size:13px;color:var(--gray-500)">تم الشحن</div>
+          <div class="stat-card" style="border-top:3px solid var(--accent-gold)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="stat-label">العملاء</div>
+                <div class="stat-value">${stats.totalCustomers.toLocaleString()}</div>
+                <div class="stat-change up">↑ 15.2% هذا الشهر</div>
+              </div>
+              <div class="stat-icon" style="background:#FFF8E1;padding:12px;border-radius:var(--radius-lg)">👥</div>
+            </div>
           </div>
         </div>
 
-        <!-- Recent Orders Table -->
-        <div class="dashboard-table">
-          <div class="dashboard-table-header">
-            <h3>آخر الطلبات</h3>
-            <button class="btn btn-ghost btn-sm" onclick="Router.navigate('dashboard/orders')">عرض الكل ←</button>
+        <!-- Sales Chart & Order Status -->
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px">
+          <!-- Sales Chart -->
+          <div style="background:var(--white);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--gray-200)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+              <h3 style="font-weight:700">📊 المبيعات الشهرية</h3>
+              <div style="display:flex;gap:8px">
+                <button class="tag active">شهري</button>
+                <button class="tag">أسبوعي</button>
+                <button class="tag">يومي</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:8px;height:200px;padding-top:20px">
+              ${salesData.map((val, i) => `
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                  <div style="font-size:10px;color:var(--gray-500)">${(val * 1000).toLocaleString()}</div>
+                  <div style="width:100%;height:${(val / maxSale) * 150}px;background:${i === salesData.length - 1 ? 'var(--primary)' : 'var(--primary-bg)'};border-radius:4px 4px 0 0;transition:all 0.3s;cursor:pointer" onmouseover="this.style.background='var(--primary)'" onmouseout="this.style.background='${i === salesData.length - 1 ? 'var(--primary)' : 'var(--primary-bg)'}'"></div>
+                  <div style="font-size:10px;color:var(--gray-500)">${months[i].substring(0, 3)}</div>
+                </div>
+              `).join('')}
+            </div>
           </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>رقم الطلب</th>
-                  <th>العميل</th>
-                  <th>المنتجات</th>
-                  <th>المبلغ</th>
-                  <th>الحالة</th>
-                  <th>التاريخ</th>
-                  <th>إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${STORE.orders.map(order => {
-                  const statusMap = {
-                    pending: { label: 'في الانتظار', class: 'pending' },
-                    processing: { label: 'قيد التجهيز', class: 'processing' },
-                    shipped: { label: 'تم الشحن', class: 'shipped' },
-                    delivered: { label: 'تم التوصيل', class: 'delivered' },
-                  };
-                  const status = statusMap[order.status];
-                  return `
-                    <tr>
-                      <td style="font-weight:600">${order.id}</td>
-                      <td>أحمد محمد</td>
-                      <td>${order.items} منتجات</td>
-                      <td style="font-weight:700">${formatPrice(order.total)} ${STORE.currency}</td>
-                      <td><span class="status-badge ${status.class}">${status.label}</span></td>
-                      <td>${order.date}</td>
-                      <td>
-                        <button class="btn btn-ghost btn-sm">عرض</button>
-                      </td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
+
+          <!-- Order Status -->
+          <div style="background:var(--white);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--gray-200)">
+            <h3 style="font-weight:700;margin-bottom:20px">📋 حالة الطلبات</h3>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#FFF8E1;border-radius:var(--radius-md);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
+                <div style="font-size:24px">⏳</div>
+                <div style="flex:1">
+                  <div style="font-weight:600;font-size:14px">في الانتظار</div>
+                  <div style="font-size:12px;color:var(--gray-500)">يحتاج مراجعة</div>
+                </div>
+                <div style="font-size:24px;font-weight:900;color:#F57F17">${stats.pendingOrders}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#E3F2FD;border-radius:var(--radius-md);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
+                <div style="font-size:24px">📦</div>
+                <div style="flex:1">
+                  <div style="font-weight:600;font-size:14px">قيد التجهيز</div>
+                  <div style="font-size:12px;color:var(--gray-500)">جاري التحضير</div>
+                </div>
+                <div style="font-size:24px;font-weight:900;color:var(--info)">${stats.processingOrders}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#E6F9F1;border-radius:var(--radius-md);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
+                <div style="font-size:24px">🚚</div>
+                <div style="flex:1">
+                  <div style="font-weight:600;font-size:14px">تم الشحن</div>
+                  <div style="font-size:12px;color:var(--gray-500)">في الطريق</div>
+                </div>
+                <div style="font-size:24px;font-weight:900;color:var(--success)">${stats.shippedOrders}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--gray-50);border-radius:var(--radius-md);cursor:pointer" onclick="Router.navigate('dashboard/orders')">
+                <div style="font-size:24px">✅</div>
+                <div style="flex:1">
+                  <div style="font-weight:600;font-size:14px">تم التوصيل</div>
+                  <div style="font-size:12px;color:var(--gray-500)">مكتملة</div>
+                </div>
+                <div style="font-size:24px;font-weight:900;color:var(--gray-700)">890</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Orders & Top Products -->
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;margin-bottom:24px">
+          <!-- Recent Orders -->
+          <div class="dashboard-table">
+            <div class="dashboard-table-header">
+              <h3>🛒 آخر الطلبات</h3>
+              <button class="btn btn-ghost btn-sm" onclick="Router.navigate('dashboard/orders')">عرض الكل ←</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>رقم الطلب</th>
+                    <th>العميل</th>
+                    <th>المبلغ</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${STORE.orders.slice(0, 5).map(order => {
+                    const statusMap = {
+                      pending: { label: 'في الانتظار', class: 'pending', icon: '⏳' },
+                      processing: { label: 'قيد التجهيز', class: 'processing', icon: '📦' },
+                      shipped: { label: 'تم الشحن', class: 'shipped', icon: '🚚' },
+                      delivered: { label: 'تم التوصيل', class: 'delivered', icon: '✅' },
+                    };
+                    const status = statusMap[order.status];
+                    const customers = ['أحمد محمد', 'سارة علي', 'خالد حسن', 'فاطمة أحمد', 'محمد اليمن'];
+                    return `
+                      <tr>
+                        <td style="font-weight:600;font-size:13px">${order.id}</td>
+                        <td>
+                          <div style="display:flex;align-items:center;gap:8px">
+                            <div style="width:32px;height:32px;border-radius:50%;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--primary)">${customers[STORE.orders.indexOf(order)].charAt(0)}</div>
+                            <span style="font-size:13px">${customers[STORE.orders.indexOf(order)]}</span>
+                          </div>
+                        </td>
+                        <td style="font-weight:700;font-size:13px">${formatPrice(order.total)} ${STORE.currency}</td>
+                        <td><span class="status-badge ${status.class}">${status.icon} ${status.label}</span></td>
+                        <td>
+                          <button class="btn btn-ghost btn-sm" onclick="showOrderDetail('${order.id}')">👁️</button>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Top Products -->
+          <div style="background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--gray-200);overflow:hidden">
+            <div style="padding:16px 20px;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center">
+              <h3 style="font-weight:700;font-size:16px">🔥 الأكثر مبيعاً</h3>
+              <button class="btn btn-ghost btn-sm" onclick="Router.navigate('dashboard/products')">عرض الكل</button>
+            </div>
+            <div>
+              ${STORE.products.slice(0, 5).map((p, i) => `
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--gray-100);cursor:pointer" onclick="Router.navigate('product/${p.id}')">
+                  <div style="width:24px;height:24px;border-radius:50%;background:${i < 3 ? 'var(--primary)' : 'var(--gray-300)'};color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${i + 1}</div>
+                  <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:20px">${p.image}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+                    <div style="font-size:11px;color:var(--gray-500)">${p.orders.toLocaleString()} طلب</div>
+                  </div>
+                  <div style="font-weight:700;font-size:13px;color:var(--primary)">${formatPrice(p.price)} ${STORE.currency}</div>
+                </div>
+              `).join('')}
+            </div>
           </div>
         </div>
 
         <!-- Quick Actions -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px">
-          <div class="card" style="cursor:pointer;text-align:center;padding:24px" onclick="Router.navigate('dashboard/products')">
-            <div style="font-size:32px;margin-bottom:8px">➕</div>
-            <div style="font-weight:600;font-size:14px">إضافة منتج</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px">
+          <div class="card" style="cursor:pointer;text-align:center;padding:20px;border:2px dashed var(--gray-300)" onclick="Router.navigate('dashboard/products')">
+            <div style="font-size:28px;margin-bottom:8px">➕</div>
+            <div style="font-weight:600;font-size:13px">إضافة منتج</div>
           </div>
-          <div class="card" style="cursor:pointer;text-align:center;padding:24px">
-            <div style="font-size:32px;margin-bottom:8px">📊</div>
-            <div style="font-weight:600;font-size:14px">تقارير المبيعات</div>
+          <div class="card" style="cursor:pointer;text-align:center;padding:20px">
+            <div style="font-size:28px;margin-bottom:8px">📊</div>
+            <div style="font-weight:600;font-size:13px">تقارير المبيعات</div>
           </div>
-          <div class="card" style="cursor:pointer;text-align:center;padding:24px">
-            <div style="font-size:32px;margin-bottom:8px">🏷️</div>
-            <div style="font-weight:600;font-size:14px">إنشاء عرض</div>
+          <div class="card" style="cursor:pointer;text-align:center;padding:20px">
+            <div style="font-size:28px;margin-bottom:8px">🏷️</div>
+            <div style="font-weight:600;font-size:13px">إنشاء عرض</div>
           </div>
-          <div class="card" style="cursor:pointer;text-align:center;padding:24px">
-            <div style="font-size:32px;margin-bottom:8px">💬</div>
-            <div style="font-weight:600;font-size:14px">الرسائل</div>
+          <div class="card" style="cursor:pointer;text-align:center;padding:20px">
+            <div style="font-size:28px;margin-bottom:8px">💬</div>
+            <div style="font-weight:600;font-size:13px">الرسائل</div>
+          </div>
+          <div class="card" style="cursor:pointer;text-align:center;padding:20px">
+            <div style="font-size:28px;margin-bottom:8px">📈</div>
+            <div style="font-weight:600;font-size:13px">التحليلات</div>
           </div>
         </div>
       </div>
@@ -1270,22 +1383,7 @@ function renderDashboardProducts() {
 
   content.innerHTML = `
     <div class="dashboard-layout">
-      <div class="dashboard-sidebar">
-        <div class="sidebar-user">
-          <div class="user-avatar">🏪</div>
-          <div class="user-name">تاجر الجملة</div>
-          <div class="user-role">تاجر ذهبي ⭐</div>
-        </div>
-        <nav class="sidebar-nav">
-          <a onclick="Router.navigate('dashboard')"><span class="nav-icon">📊</span> لوحة التحكم</a>
-          <a class="active"><span class="nav-icon">📦</span> المنتجات</a>
-          <a onclick="Router.navigate('dashboard/orders')"><span class="nav-icon">🛒</span> الطلبات</a>
-          <a><span class="nav-icon">💬</span> الرسائل</a>
-          <a><span class="nav-icon">📈</span> التحليلات</a>
-          <a><span class="nav-icon">💰</span> الأرباح</a>
-          <a><span class="nav-icon">⚙️</span> الإعدادات</a>
-        </nav>
-      </div>
+      ${renderDashboardSidebar('products')}
 
       <div class="dashboard-content">
         <div class="dashboard-header">
@@ -1301,63 +1399,90 @@ function renderDashboardProducts() {
 
         <!-- Filters -->
         <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-          <input type="text" placeholder="🔍 بحث في المنتجات..." style="flex:1;min-width:200px">
-          <select style="padding:8px 16px">
+          <input type="text" placeholder="🔍 بحث في المنتجات..." style="flex:1;min-width:200px;padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
+          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
             <option>جميع التصنيفات</option>
-            ${STORE.categories.map(c => `<option>${c.name}</option>`).join('')}
+            ${STORE.categories.slice(0, 10).map(c => `<option>${c.name}</option>`).join('')}
           </select>
-          <select style="padding:8px 16px">
+          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
             <option>جميع الحالات</option>
             <option>نشط</option>
             <option>غير نشط</option>
             <option>نفذ من المخزون</option>
           </select>
+          <button class="btn btn-primary btn-sm">🔍 بحث</button>
         </div>
 
         <!-- Products Table -->
         <div class="dashboard-table">
+          <div class="dashboard-table-header">
+            <div style="display:flex;gap:12px;align-items:center">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="checkbox" style="accent-color:var(--primary)"> تحديد الكل
+              </label>
+              <span style="color:var(--gray-400)">|</span>
+              <button class="btn btn-ghost btn-sm" style="color:var(--danger)">🗑️ حذف المحدد</button>
+            </div>
+            <div style="font-size:13px;color:var(--gray-500)">
+              عرض 1-8 من ${STORE.merchantStats.totalProducts}
+            </div>
+          </div>
           <div class="table-wrapper">
             <table>
               <thead>
                 <tr>
-                  <th><input type="checkbox" style="accent-color:var(--primary)"></th>
+                  <th style="width:40px"><input type="checkbox" style="accent-color:var(--primary)"></th>
                   <th>المنتج</th>
                   <th>التصنيف</th>
                   <th>السعر</th>
                   <th>المخزون</th>
                   <th>المبيعات</th>
+                  <th>التقييم</th>
                   <th>الحالة</th>
                   <th>إجراءات</th>
                 </tr>
               </thead>
               <tbody>
-                ${STORE.products.slice(0, 8).map(p => `
-                  <tr>
-                    <td><input type="checkbox" style="accent-color:var(--primary)"></td>
-                    <td>
-                      <div style="display:flex;align-items:center;gap:12px">
-                        <div style="width:48px;height:48px;border-radius:var(--radius-md);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:24px">${p.image}</div>
-                        <div>
-                          <div style="font-weight:600;font-size:13px;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
-                          <div style="font-size:11px;color:var(--gray-500)">SKU: ${p.id}</div>
+                ${STORE.products.slice(0, 8).map(p => {
+                  const stock = Math.floor(Math.random() * 500) + 50;
+                  return `
+                    <tr>
+                      <td><input type="checkbox" style="accent-color:var(--primary)"></td>
+                      <td>
+                        <div style="display:flex;align-items:center;gap:12px">
+                          <div style="width:48px;height:48px;border-radius:var(--radius-md);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:24px">${p.image}</div>
+                          <div>
+                            <div style="font-weight:600;font-size:13px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+                            <div style="font-size:11px;color:var(--gray-500)">SKU: ${p.id} • ${p.store}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>${p.subCategory}</td>
-                    <td style="font-weight:700">${formatPrice(p.price)} ${STORE.currency}</td>
-                    <td>
-                      <span class="badge ${Math.random() > 0.3 ? 'badge-success' : 'badge-danger'}">${Math.floor(Math.random() * 500) + 50}</span>
-                    </td>
-                    <td>${p.orders.toLocaleString()}</td>
-                    <td><span class="status-badge delivered">نشط</span></td>
-                    <td>
-                      <div style="display:flex;gap:4px">
-                        <button class="btn btn-ghost btn-sm">✏️</button>
-                        <button class="btn btn-ghost btn-sm" style="color:var(--danger)">🗑️</button>
-                      </div>
-                    </td>
-                  </tr>
-                `).join('')}
+                      </td>
+                      <td><span class="badge badge-info">${p.subCategory}</span></td>
+                      <td>
+                        <div style="font-weight:700">${formatPrice(p.price)} ${STORE.currency}</div>
+                        <div style="font-size:11px;color:var(--gray-500);text-decoration:line-through">${formatPrice(p.originalPrice)}</div>
+                      </td>
+                      <td>
+                        <span class="badge ${stock > 100 ? 'badge-success' : stock > 20 ? 'badge-warning' : 'badge-danger'}">${stock}</span>
+                      </td>
+                      <td style="font-weight:600">${p.orders.toLocaleString()}</td>
+                      <td>
+                        <div style="display:flex;align-items:center;gap:4px">
+                          <span style="color:var(--accent-gold)">★</span>
+                          <span style="font-weight:600">${p.rating}</span>
+                        </div>
+                      </td>
+                      <td><span class="status-badge delivered">نشط</span></td>
+                      <td>
+                        <div style="display:flex;gap:4px">
+                          <button class="btn btn-ghost btn-sm" title="تعديل" onclick="showEditProductModal(${p.id})">✏️</button>
+                          <button class="btn btn-ghost btn-sm" title="عرض" onclick="Router.navigate('product/${p.id}')">👁️</button>
+                          <button class="btn btn-ghost btn-sm" style="color:var(--danger)" title="حذف" onclick="deleteProduct(${p.id})">🗑️</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
               </tbody>
             </table>
           </div>
@@ -1377,83 +1502,175 @@ function renderDashboardProducts() {
   `;
 }
 
+function showAddProductModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <h3>➕ إضافة منتج جديد</h3>
+        <button style="background:none;border:none;font-size:24px;cursor:pointer" onclick="this.closest('.modal-overlay').remove()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>اسم المنتج</label>
+          <input type="text" placeholder="أدخل اسم المنتج" style="width:100%">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label>التصنيف</label>
+            <select style="width:100%">
+              ${STORE.categories.slice(0, 10).map(c => `<option>${c.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>القسم الفرعي</label>
+            <input type="text" placeholder="أدخل القسم الفرعي" style="width:100%">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label>السعر</label>
+            <input type="number" placeholder="0" style="width:100%">
+          </div>
+          <div class="form-group">
+            <label>السعر الأصلي</label>
+            <input type="number" placeholder="0" style="width:100%">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label>الحد الأدنى للطلب</label>
+            <input type="number" placeholder="1" style="width:100%">
+          </div>
+          <div class="form-group">
+            <label>المخزون</label>
+            <input type="number" placeholder="0" style="width:100%">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>الوصف</label>
+          <textarea rows="3" placeholder="وصف المنتج..." style="width:100%"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove();showToast('تم إضافة المنتج بنجاح')">حفظ المنتج</button>
+        <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">إلغاء</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function showEditProductModal(productId) {
+  const product = STORE.products.find(p => p.id === productId);
+  if (!product) return;
+  showToast('تم فتح نافذة تعديل المنتج: ' + product.name.substring(0, 30));
+}
+
+function deleteProduct(productId) {
+  if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+    showToast('تم حذف المنتج بنجاح', 'warning');
+  }
+}
+
 // --- Page: Merchant Orders ---
 function renderDashboardOrders() {
   const content = document.getElementById('app-content');
+  const stats = STORE.merchantStats;
 
   content.innerHTML = `
     <div class="dashboard-layout">
-      <div class="dashboard-sidebar">
-        <div class="sidebar-user">
-          <div class="user-avatar">🏪</div>
-          <div class="user-name">تاجر الجملة</div>
-          <div class="user-role">تاجر ذهبي ⭐</div>
-        </div>
-        <nav class="sidebar-nav">
-          <a onclick="Router.navigate('dashboard')"><span class="nav-icon">📊</span> لوحة التحكم</a>
-          <a onclick="Router.navigate('dashboard/products')"><span class="nav-icon">📦</span> المنتجات</a>
-          <a class="active"><span class="nav-icon">🛒</span> الطلبات</a>
-          <a><span class="nav-icon">💬</span> الرسائل</a>
-          <a><span class="nav-icon">📈</span> التحليلات</a>
-          <a><span class="nav-icon">💰</span> الأرباح</a>
-          <a><span class="nav-icon">⚙️</span> الإعدادات</a>
-        </nav>
-      </div>
+      ${renderDashboardSidebar('orders')}
 
       <div class="dashboard-content">
         <div class="dashboard-header">
           <div>
             <h2>إدارة الطلبات</h2>
-            <p style="color:var(--gray-500);font-size:14px">${STORE.merchantStats.totalOrders} إجمالي الطلبات</p>
+            <p style="color:var(--gray-500);font-size:14px">${stats.totalOrders} إجمالي الطلبات • آخر تحديث: اليوم 10:45 ص</p>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-outline btn-sm">📥 تصدير</button>
+            <button class="btn btn-outline btn-sm">📥 تصدير Excel</button>
+            <button class="btn btn-outline btn-sm">🖨️ طباعة</button>
           </div>
         </div>
 
         <!-- Order Stats -->
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--gray-200);text-align:center;cursor:pointer">
+          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--gray-200);text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
             <div style="font-size:14px;color:var(--gray-500)">الكل</div>
-            <div style="font-size:24px;font-weight:900">${STORE.merchantStats.totalOrders}</div>
+            <div style="font-size:28px;font-weight:900">${stats.totalOrders}</div>
+            <div style="font-size:11px;color:var(--gray-400)">إجمالي الطلبات</div>
           </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:2px solid #F57F17;text-align:center;cursor:pointer">
-            <div style="font-size:14px;color:#F57F17">في الانتظار</div>
-            <div style="font-size:24px;font-weight:900;color:#F57F17">${STORE.merchantStats.pendingOrders}</div>
+          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:2px solid #F57F17;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
+            <div style="font-size:14px;color:#F57F17">⏳ في الانتظار</div>
+            <div style="font-size:28px;font-weight:900;color:#F57F17">${stats.pendingOrders}</div>
+            <div style="font-size:11px;color:var(--gray-400)">يحتاج مراجعة</div>
           </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:2px solid var(--info);text-align:center;cursor:pointer">
-            <div style="font-size:14px;color:var(--info)">قيد التجهيز</div>
-            <div style="font-size:24px;font-weight:900;color:var(--info)">${STORE.merchantStats.processingOrders}</div>
+          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:2px solid var(--info);text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
+            <div style="font-size:14px;color:var(--info)">📦 قيد التجهيز</div>
+            <div style="font-size:28px;font-weight:900;color:var(--info)">${stats.processingOrders}</div>
+            <div style="font-size:11px;color:var(--gray-400)">جاري التحضير</div>
           </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:2px solid var(--success);text-align:center;cursor:pointer">
-            <div style="font-size:14px;color:var(--success)">تم الشحن</div>
-            <div style="font-size:24px;font-weight:900;color:var(--success)">${STORE.merchantStats.shippedOrders}</div>
+          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:2px solid var(--success);text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
+            <div style="font-size:14px;color:var(--success)">🚚 تم الشحن</div>
+            <div style="font-size:28px;font-weight:900;color:var(--success)">${stats.shippedOrders}</div>
+            <div style="font-size:11px;color:var(--gray-400)">في الطريق</div>
           </div>
-          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--gray-200);text-align:center;cursor:pointer">
-            <div style="font-size:14px;color:var(--gray-500)">تم التوصيل</div>
-            <div style="font-size:24px;font-weight:900">890</div>
+          <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--gray-200);text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='none'">
+            <div style="font-size:14px;color:var(--gray-500)">✅ تم التوصيل</div>
+            <div style="font-size:28px;font-weight:900">890</div>
+            <div style="font-size:11px;color:var(--gray-400)">مكتملة</div>
           </div>
+        </div>
+
+        <!-- Filters & Search -->
+        <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--gray-200);margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <input type="text" placeholder="🔍 بحث برقم الطلب، اسم العميل، أو رقم الهاتف..." style="flex:1;min-width:250px;padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
+          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
+            <option>جميع الحالات</option>
+            <option>في الانتظار</option>
+            <option>قيد التجهيز</option>
+            <option>تم الشحن</option>
+            <option>تم التوصيل</option>
+            <option>ملغي</option>
+          </select>
+          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
+            <option>جميع التواريخ</option>
+            <option>اليوم</option>
+            <option>آخر 7 أيام</option>
+            <option>آخر 30 يوم</option>
+            <option>هذا الشهر</option>
+          </select>
+          <select style="padding:10px 16px;border:1px solid var(--gray-300);border-radius:var(--radius-md)">
+            <option>طريقة الدفع</option>
+            <option>الدفع عند الاستلام</option>
+            <option>محفظة إلكترونية</option>
+            <option>تحويل بنكي</option>
+          </select>
+          <button class="btn btn-primary btn-sm">🔍 بحث</button>
         </div>
 
         <!-- Orders Table -->
         <div class="dashboard-table">
           <div class="dashboard-table-header">
             <div style="display:flex;gap:12px;align-items:center">
-              <input type="text" placeholder="🔍 بحث برقم الطلب..." style="width:250px">
-              <select style="padding:8px 16px">
-                <option>جميع الحالات</option>
-                <option>في الانتظار</option>
-                <option>قيد التجهيز</option>
-                <option>تم الشحن</option>
-                <option>تم التوصيل</option>
-              </select>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="checkbox" style="accent-color:var(--primary)"> تحديد الكل
+              </label>
+              <span style="color:var(--gray-400)">|</span>
+              <button class="btn btn-ghost btn-sm" style="color:var(--success)">✅ قبول المحدد</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--danger)">❌ إلغاء المحدد</button>
+            </div>
+            <div style="font-size:13px;color:var(--gray-500)">
+              عرض 1-${Math.min(10, stats.totalOrders)} من ${stats.totalOrders}
             </div>
           </div>
           <div class="table-wrapper">
             <table>
               <thead>
                 <tr>
-                  <th><input type="checkbox" style="accent-color:var(--primary)"></th>
+                  <th style="width:40px"><input type="checkbox" style="accent-color:var(--primary)"></th>
                   <th>رقم الطلب</th>
                   <th>العميل</th>
                   <th>المنتجات</th>
@@ -1467,33 +1684,60 @@ function renderDashboardOrders() {
               <tbody>
                 ${STORE.orders.map(order => {
                   const statusMap = {
-                    pending: { label: 'في الانتظار', class: 'pending' },
-                    processing: { label: 'قيد التجهيز', class: 'processing' },
-                    shipped: { label: 'تم الشحن', class: 'shipped' },
-                    delivered: { label: 'تم التوصيل', class: 'delivered' },
+                    pending: { label: 'في الانتظار', class: 'pending', icon: '⏳' },
+                    processing: { label: 'قيد التجهيز', class: 'processing', icon: '📦' },
+                    shipped: { label: 'تم الشحن', class: 'shipped', icon: '🚚' },
+                    delivered: { label: 'تم التوصيل', class: 'delivered', icon: '✅' },
+                    cancelled: { label: 'ملغي', class: 'cancelled', icon: '❌' },
                   };
                   const status = statusMap[order.status];
                   const payments = ['الدفع عند الاستلام', 'محفظة إلكترونية', 'تحويل بنكي'];
+                  const customers = ['أحمد محمد', 'سارة علي', 'خالد حسن', 'فاطمة أحمد'];
+                  const phones = ['777123456', '733987654', '712345678', '788765432'];
+                  const cities = ['صنعاء', 'عدن', 'تعز', 'الحديدة'];
+                  const i = STORE.orders.indexOf(order);
                   return `
                     <tr>
                       <td><input type="checkbox" style="accent-color:var(--primary)"></td>
-                      <td style="font-weight:600">${order.id}</td>
                       <td>
-                        <div>
-                          <div style="font-weight:500">أحمد محمد</div>
-                          <div style="font-size:11px;color:var(--gray-500)">777 XXX XXXX</div>
+                        <div style="font-weight:700;color:var(--primary)">${order.id}</div>
+                      </td>
+                      <td>
+                        <div style="display:flex;align-items:center;gap:10px">
+                          <div style="width:36px;height:36px;border-radius:50%;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--primary)">${customers[i].charAt(0)}</div>
+                          <div>
+                            <div style="font-weight:600;font-size:13px">${customers[i]}</div>
+                            <div style="font-size:11px;color:var(--gray-500)">📱 ${phones[i]} • 📍 ${cities[i]}</div>
+                          </div>
                         </div>
                       </td>
-                      <td>${order.items} منتجات</td>
-                      <td style="font-weight:700">${formatPrice(order.total)} ${STORE.currency}</td>
-                      <td style="font-size:13px">${payments[Math.floor(Math.random() * 3)]}</td>
-                      <td><span class="status-badge ${status.class}">${status.label}</span></td>
-                      <td>${order.date}</td>
                       <td>
-                        <div style="display:flex;gap:4px">
-                          <button class="btn btn-ghost btn-sm">👁️</button>
-                          ${order.status === 'pending' ? '<button class="btn btn-success btn-sm">قبول</button>' : ''}
-                          ${order.status === 'processing' ? '<button class="btn btn-primary btn-sm">شحن</button>' : ''}
+                        <div style="display:flex;align-items:center;gap:6px">
+                          <div style="font-weight:600">${order.items}</div>
+                          <div style="font-size:11px;color:var(--gray-500)">منتج</div>
+                        </div>
+                      </td>
+                      <td>
+                        <div style="font-weight:800;font-size:14px;color:var(--accent)">${formatPrice(order.total)} ${STORE.currency}</div>
+                      </td>
+                      <td>
+                        <div style="font-size:12px;display:flex;align-items:center;gap:4px">
+                          ${payments[i % 3] === 'الدفع عند الاستلام' ? '💵' : payments[i % 3] === 'محفظة إلكترونية' ? '📱' : '🏦'}
+                          ${payments[i % 3]}
+                        </div>
+                      </td>
+                      <td><span class="status-badge ${status.class}">${status.icon} ${status.label}</span></td>
+                      <td>
+                        <div style="font-size:13px">${order.date}</div>
+                        <div style="font-size:11px;color:var(--gray-500)">${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} ص</div>
+                      </td>
+                      <td>
+                        <div style="display:flex;gap:4px;flex-wrap:wrap">
+                          <button class="btn btn-ghost btn-sm" title="عرض التفاصيل" onclick="showOrderDetail('${order.id}')">👁️</button>
+                          ${order.status === 'pending' ? '<button class="btn btn-success btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'processing\')">✅ قبول</button>' : ''}
+                          ${order.status === 'processing' ? '<button class="btn btn-primary btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'shipped\')">🚚 شحن</button>' : ''}
+                          ${order.status === 'shipped' ? '<button class="btn btn-success btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'delivered\')">✅ توصيل</button>' : ''}
+                          ${order.status === 'pending' ? '<button class="btn btn-danger btn-sm" onclick="updateOrderStatus(\'' + order.id + '\', \'cancelled\')">❌</button>' : ''}
                         </div>
                       </td>
                     </tr>
@@ -1503,9 +1747,109 @@ function renderDashboardOrders() {
             </table>
           </div>
         </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <button class="page-btn">←</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">...</button>
+          <button class="page-btn">45</button>
+          <button class="page-btn">→</button>
+        </div>
       </div>
     </div>
   `;
+}
+
+function showOrderDetail(orderId) {
+  const order = STORE.orders.find(o => o.id === orderId);
+  if (!order) return;
+
+  const statusMap = {
+    pending: { label: 'في الانتظار', class: 'pending', icon: '⏳' },
+    processing: { label: 'قيد التجهيز', class: 'processing', icon: '📦' },
+    shipped: { label: 'تم الشحن', class: 'shipped', icon: '🚚' },
+    delivered: { label: 'تم التوصيل', class: 'delivered', icon: '✅' },
+  };
+  const status = statusMap[order.status];
+
+  // Create modal
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:700px">
+      <div class="modal-header">
+        <h3>📋 تفاصيل الطلب ${order.id}</h3>
+        <button style="background:none;border:none;font-size:24px;cursor:pointer" onclick="this.closest('.modal-overlay').remove()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div>
+            <div style="font-size:13px;color:var(--gray-500)">العميل</div>
+            <div style="font-weight:600">أحمد محمد</div>
+            <div style="font-size:12px;color:var(--gray-500)">📱 777123456</div>
+          </div>
+          <div>
+            <div style="font-size:13px;color:var(--gray-500)">العنوان</div>
+            <div style="font-weight:600">صنعاء، شارع الستين</div>
+          </div>
+          <div>
+            <div style="font-size:13px;color:var(--gray-500)">طريقة الدفع</div>
+            <div style="font-weight:600">💵 الدفع عند الاستلام</div>
+          </div>
+          <div>
+            <div style="font-size:13px;color:var(--gray-500)">الحالة</div>
+            <span class="status-badge ${status.class}">${status.icon} ${status.label}</span>
+          </div>
+        </div>
+
+        <h4 style="font-weight:700;margin-bottom:12px">📦 المنتجات</h4>
+        ${STORE.products.slice(0, order.items).map(p => `
+          <div style="display:flex;gap:12px;padding:12px;background:var(--gray-50);border-radius:var(--radius-md);margin-bottom:8px">
+            <div style="width:48px;height:48px;border-radius:var(--radius-md);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:24px">${p.image}</div>
+            <div style="flex:1">
+              <div style="font-weight:500;font-size:13px">${p.name.substring(0, 50)}...</div>
+              <div style="font-size:12px;color:var(--gray-500)">الكمية: ${p.moq}</div>
+            </div>
+            <div style="font-weight:700">${formatPrice(p.price * p.moq)} ${STORE.currency}</div>
+          </div>
+        `).join('')}
+
+        <div style="border-top:2px solid var(--gray-200);margin-top:16px;padding-top:16px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px">
+            <span>المجموع الفرعي</span>
+            <span>${formatPrice(order.total - 3000)} ${STORE.currency}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px">
+            <span>الشحن</span>
+            <span style="color:var(--success)">مجاني</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;color:var(--accent);border-top:1px solid var(--gray-200);padding-top:8px">
+            <span>الإجمالي</span>
+            <span>${formatPrice(order.total)} ${STORE.currency}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        ${order.status === 'pending' ? '<button class="btn btn-success" onclick="updateOrderStatus(\'' + order.id + '\', \'processing\');this.closest(\'.modal-overlay\').remove()">✅ قبول الطلب</button>' : ''}
+        ${order.status === 'processing' ? '<button class="btn btn-primary" onclick="updateOrderStatus(\'' + order.id + '\', \'shipped\');this.closest(\'.modal-overlay\').remove()">🚚 شحن الطلب</button>' : ''}
+        <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">إغلاق</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function updateOrderStatus(orderId, newStatus) {
+  const order = STORE.orders.find(o => o.id === orderId);
+  if (order) {
+    order.status = newStatus;
+    const statusLabels = { processing: 'تم قبول الطلب', shipped: 'تم شحن الطلب', delivered: 'تم توصيل الطلب', cancelled: 'تم إلغاء الطلب' };
+    showToast(statusLabels[newStatus] || 'تم تحديث الحالة', 'success');
+    renderDashboardOrders();
+  }
 }
 
 // --- Page: Search Results ---
